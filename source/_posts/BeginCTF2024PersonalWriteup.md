@@ -1,7 +1,7 @@
 ---
 title: BeginCTF2024个人Writeup
 typora-root-url: BeginCTF2024PersonalWriteup
-date: 2024-02-15 21:02:52
+date: 2024-02-06 12:02:52
 tags:
 categories: Writeup
 ---
