@@ -345,6 +345,10 @@ js有混淆，直接浏览器里调试
 
 begin{y0u_re4l1y_g07_1337427_f2be65e6b686d8851e9052a51577f7e1}
 
+# Forensics
+
+------
+
 ## beginner_Forensics!!!!
 
 ![img](clip_image039.jpg)
@@ -353,21 +357,9 @@ begin{y0u_re4l1y_g07_1337427_f2be65e6b686d8851e9052a51577f7e1}
 
 ![img](clip_image041.jpg)
 
- 
+ 使用十六进制编辑器打开发现如下关键内容BatchEncryption Build 201610 By gwsbhqt@163.com
 
 ![img](clip_image043.jpg)
-
-使用十六进制编辑器打开发现如下关键内容BatchEncryption Build 201610 By gwsbhqt@163.com
-
- 
-
- 
-
-
-
- 
-
- 
 
 网络搜索相关内容后得到解密脚本，跑一下得出内容
 
@@ -390,9 +382,7 @@ Flag为begin{b@TcH_O8FU$c@T1on_15_e@SY_70_SO1vE}
 
 下载得pdf文件，全选后发现一处不可见的文本被选中
 
-复制出来得出begin{0kay_1_thiNK_YoU_Ar3_a1Re@DY_rE4D_6uiDe8ooK_
-
-AnD_9OT_FL46}
+复制出来得出begin{0kay_1_thiNK_YoU_Ar3_a1Re@DY_rE4D_6uiDe8ooK_AnD_9OT_FL46}
 
  
 
