@@ -8,7 +8,7 @@ social: # 社交链接
   - title: '首页'
     icon: 'home'
     link: 'https://L0serQianXia.github.io/blog'
-background: 'https://api.paugram.com/wallpaper?source=gh' # 主题背景
+background: 'https://i.loli.net/2018/04/19/5ad840133c288.jpg' # 主题背景
 menu: # 页眉菜单项目
   '关于我': /2024/02/15/about/
   '朋友们': /2024/02/15/friends/
