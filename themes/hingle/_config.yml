@@ -1,0 +1,17 @@
+author: 'QianXia' # 作者名称
+author_avatar: 'https://s2.loli.net/2024/02/15/yB3b6poU7Qvn91A.jpg' # 作者头像
+author_text: '是个飞舞，头像都是偷SuperSkidder的' # 作者信息
+social: # 社交链接
+  - title: 'Github'
+    icon: 'github'
+    link: 'https://github.com/L0serQianXia'
+  - title: '首页'
+    icon: 'home'
+    link: 'https://L0serQianXia.github.io/blog'
+background: 'https://api.paugram.com/wallpaper?source=gh' # 主题背景
+menu: # 页眉菜单项目
+  '关于我': /2024/02/15/about/
+  '朋友们': /2024/02/15/friends/
+config:
+  copyright: true # 复制的时候弹出保留原站链接说明
+  night: true # 自动切换夜间模式
