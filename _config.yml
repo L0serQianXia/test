@@ -3,13 +3,13 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: 千夏的博客
+title: 这里是千夏
 subtitle: ''
-description: ''
+description: '千夏正在开纪'
 keywords:
 author: 千夏
-language: en
-timezone: ''
+language: zh-CN
+timezone: 'Asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
@@ -67,7 +67,7 @@ marked:
   descriptionLists: true
 relative_link: false
 future: true
-syntax_highlighter: highlight.js
+syntax_highlighter: prismjs
 highlight:
   line_number: true
   auto_detect: false
@@ -77,6 +77,7 @@ highlight:
 prismjs:
   preprocess: true
   line_number: true
+  line_threshold: 0
   tab_replace: ''
 
 # Home page setting
