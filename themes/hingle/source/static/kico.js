@@ -279,9 +279,9 @@ Array.prototype.remove = function (value) {
 		// 更新点位
 		startPoint = { x: touchArr[0][1].clientX, y: touchArr[0][1].clientY }
 	  }
-	  setTimeout(() => {
+	  //setTimeout(() => {
 		isMove = false
-	  }, 300);
+	  //}, 300);
 	})
 	window.addEventListener('pointermove', (e) => {
 	  e.preventDefault()
