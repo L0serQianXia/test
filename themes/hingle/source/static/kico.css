@@ -1484,6 +1484,7 @@ notice{
   height: 100vh;
   background-color: rgba(0, 0, 0, 0.75);
   user-select: none;
+  cursor: zoom-out;
 }
 .modal > img {
   position: absolute;

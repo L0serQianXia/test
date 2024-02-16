@@ -193,21 +193,21 @@ Array.prototype.remove = function (value) {
 	  mask.addEventListener('mousewheel', zoom, { passive: false })
 	  // 遮罩点击事件
 	  function clickFunc() {
-		setTimeout(() => {
+		//setTimeout(() => {
 		  if (isMove) {
 			isMove = false
 		  } else {
 			changeStyle(cloneEl, ['transition: all .3s', `left: ${left}px`, `top: ${top}px`, `transform: translate(0,0)`, `width: ${offsetWidth}px`])
-			setTimeout(() => {
+			//setTimeout(() => {
 			  document.body.removeChild(this)
 			  originalEl.style.opacity = 1
 			  mask.removeEventListener('click', clickFunc)
-			}, 300)
+			//}, 300)
 		  }
-		}, 280)
+		//}, 100)
 	  }
 	  // 添加图片
-	  changeStyle(cloneEl, [`left: ${left}px`, `top: ${top}px`])
+	  changeStyle(cloneEl, [`left: ${left}px`, `top: ${top}px`, 'cursor: pointer'])
 	  mask.appendChild(cloneEl)
 	  // 移动图片到屏幕中心位置
 	  const originalCenterPoint = { x: offsetWidth / 2 + left, y: offsetHeight / 2 + top }
@@ -216,11 +216,11 @@ Array.prototype.remove = function (value) {
 	  const diffs = { left: ((adaptScale() - 1) * offsetWidth) / 2, top: ((adaptScale() - 1) * offsetHeight) / 2 }
 	  changeStyle(cloneEl, ['transition: all 0.3s', `width: ${offsetWidth * adaptScale() + 'px'}`, `transform: translate(${offsetDistance.left - left - diffs.left}px, ${offsetDistance.top - top - diffs.top}px)`])
 	  // 消除偏差
-	  setTimeout(() => {
+	  //setTimeout(() => {
 		changeStyle(cloneEl, ['transition: all 0s', `left: 0`, `top: 0`, `transform: translate(${offsetDistance.left - diffs.left}px, ${offsetDistance.top - diffs.top}px)`])
 		offset = { left: offsetDistance.left - diffs.left, top: offsetDistance.top - diffs.top } // 记录值
 		record()
-	  }, 300)
+	  //}, 300)
 	}
 
 	// 滚轮缩放
