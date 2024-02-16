@@ -1,5 +1,5 @@
 ---
-title: PolarCTF靶场Reverse方向简单题Writeup
+title: PolarCTF靶场Reverse方向简单难度Writeup
 typora-root-url: PolarCTF-Reverse-Easy-Writeup
 date: 2024-02-16 00:25:39
 tags:
@@ -22,7 +22,7 @@ categories: Writeup
 
 ## PE结构
 
-<img src="/image-20240216003917236.png" alt="image-20240216003917236" style="zoom:80%;" />
+<img src="image-20240216003917236.png" alt="image-20240216003917236" style="zoom:80%;" />
 
 查壳无有效信息，根据题目名称猜测，可能是PE结构中动了手脚，使用010 Editor打开
 
@@ -78,7 +78,7 @@ var78用于接收用户的输入
 
 ![image-20240216005911681](image-20240216005911681.png)
 
-```assembly
+```nasm
 mov dword ptr ss:[ebp-84],0
 jmp 加加减减.381A7C
 mov eax,dword ptr ss:[ebp-84]
@@ -126,3 +126,433 @@ for (int i = 0; i < strlen(user_input); i++)
 触发断点被调试器断住，同时flag已被解密
 
 ![image-20240216011223591](image-20240216011223591.png)
+
+## 康师傅
+
+![image-20240216221536648](image-20240216221536648.png)
+
+搜索字符串error来到如图位置
+
+![image-20240216221925578](image-20240216221925578.png)
+
+分析上下代码可知，`ebp-78`为用户输入，`ebp-3C`为用于比较的字符串，`00EAE522`处为`strcmp`函数
+
+加密用户输入字符串的代码：
+
+```nasm
+00EAE4D1 | C785 7CFFFFFF 00000000 | mov dword ptr ss:[ebp-84],0       |
+00EAE4DB | EB 0F                  | jmp 康师傅.EAE4EC                    |
+00EAE4DD | 8B85 7CFFFFFF          | mov eax,dword ptr ss:[ebp-84]     |
+00EAE4E3 | 83C0 01                | add eax,1                         | eax:"`鶁"
+00EAE4E6 | 8985 7CFFFFFF          | mov dword ptr ss:[ebp-84],eax     |
+00EAE4EC | 8D45 88                | lea eax,dword ptr ss:[ebp-78]     |
+00EAE4EF | 50                     | push eax                          | eax:"`鶁"
+00EAE4F0 | E8 7D91FFFF            | call 康师傅.EA7672                   | strlen
+00EAE4F5 | 83C4 04                | add esp,4                         |
+00EAE4F8 | 3985 7CFFFFFF          | cmp dword ptr ss:[ebp-84],eax     |
+00EAE4FE | 73 1A                  | jae 康师傅.EAE51A                    |
+00EAE500 | 8B85 7CFFFFFF          | mov eax,dword ptr ss:[ebp-84]     |
+00EAE506 | 0FBE4C05 88            | movsx ecx,byte ptr ss:[ebp+eax-78] | ecx:EntryPoint
+00EAE50B | 83F1 09                | xor ecx,9                         | ecx:EntryPoint
+00EAE50E | 8B95 7CFFFFFF          | mov edx,dword ptr ss:[ebp-84]     | edx:EntryPoint
+00EAE514 | 884C15 88              | mov byte ptr ss:[ebp+edx-78],cl   |
+00EAE518 | EB C3                  | jmp 康师傅.EAE4DD                    |
+00EAE51A | 8D45 88                | lea eax,dword ptr ss:[ebp-78]     | input
+```
+
+此处实现了一个for循环，首先是`00EAE4D1`处对局部变量`ebp-84`的赋值，可视作for循环中的i，随后的一个jmp跳过了循环尾部对i的增加，进入到循环体。循环体中首先是在`00EAE4F0`处调用了`EA7672`函数，此处应为`strlen`函数，随后使用cmp指令将i与eax存储的返回值做比较，如果大于等于则跳出循环，相反则向下执行，其中通过`ebp+eax-78`逐字节访问了用户输入内容，并对其逐字节与9做异或运算，随后将异或的结果放回去。
+
+还原伪代码为：
+
+```c
+for (int i = 0; i < strlen(user_input); i++)
+{
+    char b = user_input[i];
+    b = b ^ 9;
+    user_input[i] = b;
+}
+```
+
+我们知道，简单异或加密的特性是同字符串同密钥执行两遍字符串不变，因此，我们可以直接利用调试器使用程序自身的代码解密已加密的flag
+
+我们只需要将用户输入字符串地址处内容修改为已加密的flag（`ebp-3C`），然后执行它的算法即可。
+
+我们在接收输入完毕之后，在内存窗口中转到`ebp-78`（scanf接收输入地址）并将其值修改为`ebp-3C`处的值
+
+![image-20240216223920719](image-20240216223920719.png)
+
+之后在循环结束处（`00EAE51A`）处下断点运行即可观察到flag已解密
+
+![image-20240216224050472](image-20240216224050472.png)
+
+![image-20240216224116384](image-20240216224116384.png)
+
+此题和加加减减代码几乎一致，修改部分只有一句：将ASCII码-1的指令修改为了异或指令
+
+## 另辟蹊径
+
+**该题目存在感染型病毒，运行前需要注意清除病毒，如果不清除病毒直接调试程序会停在病毒的入口点，导致直接搜索字符串不能找到对题目有帮助的信息**
+
+![image-20240216224933629](image-20240216224933629.png)
+
+### 解法1
+
+这是一个mfc框架的程序，我们直接搜索字符串似乎没有有用的信息，这里可以采用下消息断点的方式断在处理点击的函数前后
+
+x64dbg加载程序后运行，转到句柄选项卡，右键刷新
+
+![image-20240216232639419](image-20240216232639419.png)
+
+可以观察到这里有一个标题为100000的窗口类名为Static的窗口，右键->消息断点，由于每次点击按钮都会改变文本，下一个WM_SETTEXT断点
+
+![image-20240216232800891](image-20240216232800891.png)
+
+在此之后回到程序，单击一下按钮发现程序被暂停，回到x64dbg中来到调用堆栈，回到程序的调用处下断点，使其运行到程序中
+
+![image-20240216232946368](image-20240216232946368.png)
+
+![image-20240216233024085](image-20240216233024085.png)
+
+这里没有什么有用的信息，继续单步回到上一层调用
+
+![image-20240216233221139](image-20240216233221139.png)
+
+从调用中出来我们发现一条cmp指令，这里将`esi+D4`与0比较，我们知道我们程序中点击到0就应该弹出flag，我们初步推测这是判断点击次数的代码，我们再将`esi+D4`处的数值转换为十进制
+
+![image-20240216233358777](image-20240216233358777.png)
+
+发现这个数为99999，我们程序中在一次单击之后，显示的数值也应该为99999，更加印证了我们的猜想
+
+这里我们将跳转NOP掉或修改零标志位后运行程序，清楚的发现已经显示了Congratulations
+
+![image-20240216233545699](image-20240216233545699.png)
+
+如果我们观察的足够仔细，我们可以发现这串字符（flag）略有眼熟，我们回到调试器的句柄选项卡中
+
+![image-20240216233740659](image-20240216233740659.png)
+
+由于没有刷新，这里我的数值没有变，也可以印证，flag一直都在窗口中，只是存在于一个不可视的控件中，我们可以进入那个被修改的跳转之间调用的两个CALL中查看代码
+
+![image-20240216233954238](image-20240216233954238.png)
+
+也发现了ShowWindow函数，说明它将存储flag的不可视的控件可视了
+
+### 解法2
+
+工具：CheatEngine
+
+使用CE打开进程之后搜索数值100000
+
+![image-20240216234525210](image-20240216234525210.png)
+
+将其值修改为1
+
+![image-20240216234608888](image-20240216234608888.png)
+
+回到程序中单击按钮得到flag
+
+![image-20240216234628721](image-20240216234628721.png)
+
+注：在解法1中我们已经看到，程序是设置完点击数值之后才进行比较，也就是说，如果我们直接将其修改为0会产生负值而不能得到flag，如图：
+
+![image-20240216234812697](image-20240216234812697.png)
+
+### 解法3（？
+
+![mmexport1708098664904](mmexport1708098664904.jpg)
+
+~~当然是连点器啦~~
+
+## use_jadx_open_it
+
+题目给到一个Android程序，这里我使用JEB打开
+
+![image-20240216235419620](image-20240216235419620.png)
+
+```java
+if(MainActivity.this.edit_sn.getText().toString().equals("flag{go_to_study_android}")) {
+    Toast.makeText(MainActivity.this, "flag正确", 0).show();
+    return;
+}
+```
+
+发现只有一个MainActivity，并且里面的代码逻辑非常清晰，flag为flag{go_to_study_android}
+
+直接打开应该是字节码，需要右键菜单中点击解析才能反编译为Java代码
+
+## re2
+
+没有后缀名，直接使用DIE看一下
+
+![image-20240217000647573](image-20240217000647573.png)
+
+是一个64位的ELF文件，使用ida64打开，向下稍滚动发现如下代码：
+
+```nasm
+.text:0000000000400922 BF C4 0F 40 00                mov     edi, offset s         ; "Please enter flag"
+.text:0000000000400927 E8 24 FD FF FF                call    _puts
+.text:0000000000400927
+.text:000000000040092C 48 8D 85 D0 FE FF FF          lea     rax, [rbp+input]      ; 已对其重命名，原名为rbp+var_130
+.text:0000000000400933 48 89 C6                      mov     rsi, rax
+.text:0000000000400936 BF D6 0F 40 00                mov     edi, offset aS        ; "%s"
+.text:000000000040093B B8 00 00 00 00                mov     eax, 0
+.text:0000000000400940 E8 8B FD FF FF                call    ___isoc99_scanf
+.text:0000000000400940
+.text:0000000000400945 48 8D 85 D0 FE FF FF          lea     rax, [rbp+input]      ; 将输入进行base64编码
+.text:000000000040094C 48 89 C7                      mov     rdi, rax
+.text:000000000040094F E8 6F 00 00 00                call    base64_encode
+.text:000000000040094F
+.text:0000000000400954 48 89 C2                      mov     rdx, rax
+.text:0000000000400957 48 8D 45 80                   lea     rax, [rbp+input_]     ; 已对其重命名，原名为rbp+s2
+.text:000000000040095B 48 89 D6                      mov     rsi, rdx              ; src
+.text:000000000040095E 48 89 C7                      mov     rdi, rax              ; dest
+.text:0000000000400961 E8 DA FC FF FF                call    _strcpy               ; 将输入复制到rbp+input_中
+.text:0000000000400961
+.text:0000000000400966 48 8D 55 80                   lea     rdx, [rbp+input_]
+.text:000000000040096A 48 8D 85 10 FF FF FF          lea     rax, [rbp+dest]
+.text:0000000000400971 48 89 D6                      mov     rsi, rdx              ; s2
+.text:0000000000400974 48 89 C7                      mov     rdi, rax              ; s1
+.text:0000000000400977 E8 34 FD FF FF                call    _strcmp
+```
+
+此处是对用户输入内容做的处理，将用户输入进行base64编码，用于对比的内容是`rbp+dest`（后称`dest`）
+
+在ida中向上找到`dest`的相关写入
+
+```nasm
+.text:00000000004008AC 48 8D 85 90 FE FF FF          lea     rax, [rbp+var_170]
+.text:00000000004008B3 48 01 D0                      add     rax, rdx
+.text:00000000004008B6 48 BB 66 6C 61 67 7B 65 31 30 mov     rbx, 3031657B67616C66h
+.text:00000000004008C0 48 89 18                      mov     [rax], rbx
+.text:00000000004008C3 48 BB 61 64 63 33 39 34 39 62 mov     rbx, 6239343933636461h
+.text:00000000004008CD 48 89 58 08                   mov     [rax+8], rbx
+.text:00000000004008D1 48 BB 61 35 39 61 62 62 65 35 mov     rbx, 3565626261393561h
+.text:00000000004008DB 48 89 58 10                   mov     [rax+10h], rbx
+.text:00000000004008DF 48 BE 36 65 30 35 37 66 32 30 mov     rsi, 3032663735306536h
+.text:00000000004008E9 48 89 70 18                   mov     [rax+18h], rsi
+.text:00000000004008ED C7 40 20 66 38 38 33          mov     dword ptr [rax+20h], 33383866h
+.text:00000000004008F4 66 C7 40 24 65 7D             mov     word ptr [rax+24h], 7D65h
+.text:00000000004008FA C6 40 26 00                   mov     byte ptr [rax+26h], 0
+.text:00000000004008FE 48 8D 85 90 FE FF FF          lea     rax, [rbp+var_170]
+.text:0000000000400905 48 89 C7                      mov     rdi, rax
+.text:0000000000400908 E8 B6 00 00 00                call    base64_encode
+.text:0000000000400908
+.text:000000000040090D 48 89 C2                      mov     rdx, rax
+.text:0000000000400910 48 8D 85 10 FF FF FF          lea     rax, [rbp+dest]
+.text:0000000000400917 48 89 D6                      mov     rsi, rdx              ; src
+.text:000000000040091A 48 89 C7                      mov     rdi, rax              ; dest
+.text:000000000040091D E8 1E FD FF FF                call    _strcpy
+```
+
+这里同样是将一个内容进行了base64编码，并且将内容复制到了`dest`中，这里进行编码的内容是`rbp+var_170`指向的字符串，即从`00000000004008B6`到`00000000004008FA`处写入rax寄存器所存地址的内容，rax在上方被赋值为`rbp+var_170`的地址（lea指令）
+
+于是我们可以将鼠标选中上方写入rax寄存器的数据按r键，转换为字符，可以观察到以字符形式表示的数据
+
+```nasm
+.text:00000000004008B6 48 BB 66 6C 61 67 7B 65 31 30 mov     rbx, '01e{galf'
+.text:00000000004008C0 48 89 18                      mov     [rax], rbx
+.text:00000000004008C3 48 BB 61 64 63 33 39 34 39 62 mov     rbx, 'b9493cda'
+.text:00000000004008CD 48 89 58 08                   mov     [rax+8], rbx
+.text:00000000004008D1 48 BB 61 35 39 61 62 62 65 35 mov     rbx, '5ebba95a'
+.text:00000000004008DB 48 89 58 10                   mov     [rax+10h], rbx
+.text:00000000004008DF 48 BE 36 65 30 35 37 66 32 30 mov     rsi, '02f750e6'
+.text:00000000004008E9 48 89 70 18                   mov     [rax+18h], rsi
+.text:00000000004008ED C7 40 20 66 38 38 33          mov     dword ptr [rax+20h], '388f'
+.text:00000000004008F4 66 C7 40 24 65 7D             mov     word ptr [rax+24h], '}e'
+.text:00000000004008FA C6 40 26 00                   mov     byte ptr [rax+26h], 0
+```
+
+这里的数据以小端序形式存储，而字符串实际上是多个字符，并不是单个数据多个字节，不需考虑字节序的问题，这里ida并没有很好的处理这个问题，而是将其当做小端序数据显示，因此我们需要逐字节反着读取数据得到如下：flag{e10adc3949ba59abbe56e057f20f883e}
+
+即程序中将如上字符串做base64编码后与base64编码后的用户输入数据比对，那么flag即为flag{e10adc3949ba59abbe56e057f20f883e}
+
+## layout
+
+直接JEB打开，观察到
+
+![image-20240216235803763](image-20240216235803763.png)
+
+```java
+public MainActivity() {
+    this.flag = "flag{go_to_study_android}";
+}
+```
+
+于是我们直接输入flag……平台返回错误
+
+我们知道安卓程序还是要看Manifest文件的
+
+![image-20240217000012471](image-20240217000012471.png)
+
+但是简要观察了一下也没有什么头绪，来运行程序看一下吧
+
+![我的弱智截屏](Screenshot_20240217_000332_com.example.myapplicat.jpg)
+
+然后发现这么一个离谱的重叠文本，此时我们联想到题目的名字：layout，flag是在界面的layout文件中，与另一个文本重叠使我们看不清，于是我们找到MainActivity的layout文件，在Resource/layout中的activity_main.xml
+
+![image-20240217000531947](image-20240217000531947.png)
+
+可以发现flag为flag{andoird_re}
+
+## Why 32
+
+实质上是个64位程序
+
+![image-20240217003018683](image-20240217003018683.png)
+
+![image-20240217003130372](image-20240217003130372.png)
+
+调试器中载入，并搜索相关字符串（此处已自行分析代码并标记部分地址）
+
+![image-20240217003122225](image-20240217003122225.png)
+
+发现这里是一个接收输入的函数，找到调用它的函数（节约长度，二进制代码显示不全）
+
+```nasm
+0000000000401649 | 55           | push rbp                       |
+000000000040164A | 48:89E5      | mov rbp,rsp                    |
+000000000040164D | 48:83EC 20   | sub rsp,20                     |
+0000000000401651 | E8 DAFEFFFF  | call <why 32.get_user_input>   |
+0000000000401656 | E8 14FFFFFF  | call <why 32.sub_40156F>       |
+000000000040165B | 83F8 01      | cmp eax,1                      | eax:EntryPoint
+000000000040165E | 0F94C0       | sete al                        |
+0000000000401661 | 84C0         | test al,al                     |
+0000000000401663 | 74 0E        | je why 32.401673               |
+0000000000401665 | 48:8D0D C929 | lea rcx,qword ptr ds:[404035]  | 0000000000404035:"Wrong input"
+000000000040166C | E8 D7150000  | call <JMP.&puts>               |
+0000000000401671 | EB 06        | jmp why 32.401679              |
+0000000000401673 | E8 14FFFFFF  | call <why 32.sub_40158C>       |
+0000000000401678 | 90           | nop                            |
+0000000000401679 | 48:83C4 20   | add rsp,20                     |
+000000000040167D | 5D           | pop rbp                        |
+000000000040167E | C3           | ret                            |
+```
+
+发现`0000000000401656`处的函数可能是关键函数，它的返回值决定了下方跳转的走向
+
+```nasm
+000000000040156F | 55           | push rbp                                  |
+0000000000401570 | 48:89E5      | mov rbp,rsp                               |
+0000000000401573 | 8B05 EB5A000 | mov eax,dword ptr ds:[<input_flag_len>]   | eax:EntryPoint
+0000000000401579 | 83F8 20      | cmp eax,20                                | eax:EntryPoint, 20:' '
+000000000040157C | 74 07        | je why 32.401585                          |
+000000000040157E | B8 01000000  | mov eax,1                                 | eax:EntryPoint
+0000000000401583 | EB 05        | jmp why 32.40158A                         |
+0000000000401585 | B8 00000000  | mov eax,0                                 | eax:EntryPoint
+000000000040158A | 5D           | pop rbp                                   |
+000000000040158B | C3           | ret                                       |
+```
+
+发现这里校验的是上方`0000000000401530`函数获取的输入字符串长度，判断其是否为0x20，即十进制的32，也就是要求输入内容位数为32位，否则会显示Wrong input
+
+下面观察一下位数校验成功进入的CALL
+
+```nasm
+000000000040158C | 55           | push rbp                                         |
+000000000040158D | 48:89E5      | mov rbp,rsp                                      |
+0000000000401590 | 48:83EC 50   | sub rsp,50                                       |
+0000000000401594 | C745 FC 0000 | mov dword ptr ss:[rbp-4],0                       |
+000000000040159B | 48:B8 326766 | mov rax,6338633865666732                         | rax:EntryPoint
+00000000004015A5 | 48:8945 D0   | mov qword ptr ss:[rbp-30],rax                    | rax:EntryPoint
+00000000004015A9 | 48:B8 346364 | mov rax,6634373565646334                         | rax:EntryPoint
+00000000004015B3 | 48:8945 D8   | mov qword ptr ss:[rbp-28],rax                    | rax:EntryPoint
+00000000004015B7 | 48:B8 373A63 | mov rax,3B3A3B6336633A37                         | rax:EntryPoint
+00000000004015C1 | 48:8945 E0   | mov qword ptr ss:[rbp-20],rax                    | rax:EntryPoint
+00000000004015C5 | 48:B8 333B37 | mov rax,3A6667323B373B33                         | rax:EntryPoint
+00000000004015CF | 48:8945 E8   | mov qword ptr ss:[rbp-18],rax                    | rax:EntryPoint
+00000000004015D3 | 66:C745 F0 0 | mov word ptr ss:[rbp-10],0                       |
+00000000004015D9 | C745 F8 0000 | mov dword ptr ss:[rbp-8],0                       |
+00000000004015E0 | C745 FC 0000 | mov dword ptr ss:[rbp-4],0                       |
+00000000004015E7 | EB 41        | jmp why 32.40162A                                |
+00000000004015E9 | 8B45 FC      | mov eax,dword ptr ss:[rbp-4]                     | eax:EntryPoint
+00000000004015EC | 48:63D0      | movsxd rdx,eax                                   | rdx:EntryPoint, eax:EntryPoint
+00000000004015EF | 48:8D05 4A5A | lea rax,qword ptr ds:[<input_flag>]              | rax:EntryPoint
+00000000004015F6 | 0FB60402     | movzx eax,byte ptr ds:[rdx+rax]                  | eax:EntryPoint
+00000000004015FA | 0FBED0       | movsx edx,al                                     | edx:EntryPoint
+00000000004015FD | 8B45 FC      | mov eax,dword ptr ss:[rbp-4]                     | eax:EntryPoint
+0000000000401600 | 48:98        | cdqe                                             |
+0000000000401602 | 0FB64405 D0  | movzx eax,byte ptr ss:[rbp+rax-30]               | eax:EntryPoint
+0000000000401607 | 0FBEC0       | movsx eax,al                                     | eax:EntryPoint
+000000000040160A | 83E8 02      | sub eax,2                                        | eax:EntryPoint
+000000000040160D | 39C2         | cmp edx,eax                                      | edx:EntryPoint, eax:EntryPoint
+000000000040160F | 74 15        | je why 32.401626                                 |
+0000000000401611 | 48:8D0D F929 | lea rcx,qword ptr ds:[404011]                    | 0000000000404011:"you are wrong"
+0000000000401618 | E8 2B160000  | call <JMP.&puts>                                 |
+000000000040161D | C745 F8 0100 | mov dword ptr ss:[rbp-8],1                       |
+0000000000401624 | EB 0A        | jmp why 32.401630                                |
+0000000000401626 | 8345 FC 01   | add dword ptr ss:[rbp-4],1                       |
+000000000040162A | 837D FC 1F   | cmp dword ptr ss:[rbp-4],1F                      |
+000000000040162E | 7E B9        | jle why 32.4015E9                                |
+0000000000401630 | 837D F8 00   | cmp dword ptr ss:[rbp-8],0                       |
+0000000000401634 | 75 0D        | jne why 32.401643                                |
+0000000000401636 | 48:8D0D E229 | lea rcx,qword ptr ds:[40401F]                    | 000000000040401F:"Half right,think more"
+000000000040163D | E8 06160000  | call <JMP.&puts>                                 |
+0000000000401642 | 90           | nop                                              |
+0000000000401643 | 48:83C4 50   | add rsp,50                                       |
+0000000000401647 | 5D           | pop rbp                                          |
+0000000000401648 | C3           | ret                                              |
+```
+
+不难发现，`00000000004015E0`到`000000000040162E`处是个while循环
+
+```nasm
+00000000004015E0 | C745 FC 0000 | mov dword ptr ss:[rbp-4],0                       |
+00000000004015E7 | EB 41        | jmp why 32.40162A                                |
+00000000004015E9 | 8B45 FC      | mov eax,dword ptr ss:[rbp-4]                     | eax:EntryPoint
+00000000004015EC | 48:63D0      | movsxd rdx,eax                                   | rdx:EntryPoint, eax:EntryPoint
+00000000004015EF | 48:8D05 4A5A | lea rax,qword ptr ds:[<input_flag>]              | rax:EntryPoint
+00000000004015F6 | 0FB60402     | movzx eax,byte ptr ds:[rdx+rax]                  | eax:EntryPoint
+00000000004015FA | 0FBED0       | movsx edx,al                                     | edx:EntryPoint
+00000000004015FD | 8B45 FC      | mov eax,dword ptr ss:[rbp-4]                     | eax:EntryPoint
+0000000000401600 | 48:98        | cdqe                                             |
+0000000000401602 | 0FB64405 D0  | movzx eax,byte ptr ss:[rbp+rax-30]               | eax:EntryPoint
+0000000000401607 | 0FBEC0       | movsx eax,al                                     | eax:EntryPoint
+000000000040160A | 83E8 02      | sub eax,2                                        | eax:EntryPoint
+000000000040160D | 39C2         | cmp edx,eax                                      | edx:EntryPoint, eax:EntryPoint
+000000000040160F | 74 15        | je why 32.401626                                 |
+0000000000401611 | 48:8D0D F929 | lea rcx,qword ptr ds:[404011]                    | 0000000000404011:"you are wrong"
+0000000000401618 | E8 2B160000  | call <JMP.&puts>                                 |
+000000000040161D | C745 F8 0100 | mov dword ptr ss:[rbp-8],1                       |
+0000000000401624 | EB 0A        | jmp why 32.401630                                |
+0000000000401626 | 8345 FC 01   | add dword ptr ss:[rbp-4],1                       |
+000000000040162A | 837D FC 1F   | cmp dword ptr ss:[rbp-4],1F                      |
+000000000040162E | 7E B9        | jle why 32.4015E9            
+```
+
+还原伪代码如下：
+
+```c
+int i = 0;
+while(i <= 31)
+{
+	if(input_flag[i] != var30[i] - 2)
+	{
+		puts("you are wrong");
+		verify_flag = true;
+		break;
+	}
+    i++;
+}
+```
+
+就是将`var30`（rbp-30）处的内容逐字节-2并与input_flag逐字节比较，我们向上可以看到`var30`的赋值，这里在调试器里不方便复制，直接将代码运行到这里之后从内存窗口中查看
+
+![image-20240217005005040](image-20240217005005040.png)
+
+断住之后转到`rbp-30`的地址不难发现这里的字符串，将其逐字节-2即可得到flag
+
+![image-20240217005837597](image-20240217005837597.png)
+
+程序提示对了一半
+
+![image-20240217010109141](image-20240217010109141.png)
+
+提交平台确实提示错误
+
+![image-20240217010051554](image-20240217010051554.png)
+
+观察得到的字符串，有md5可能，使用在线md5解密平台得到字符串
+
+![image-20240217010249628](image-20240217010249628.png)
+
+提交flag{F1laig}返回正确
