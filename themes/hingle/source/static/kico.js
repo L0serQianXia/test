@@ -191,6 +191,7 @@ Array.prototype.remove = function (value) {
 	  // 注册事件
 	  mask.addEventListener("click", clickFunc)
 	  mask.addEventListener('mousewheel', zoom, { passive: false })
+	  registerListener()
 	  // 遮罩点击事件
 	  function clickFunc() {
 		//setTimeout(() => {
@@ -203,6 +204,7 @@ Array.prototype.remove = function (value) {
 			  originalEl.style.opacity = 1
 			  mask.removeEventListener('click', clickFunc)
 			//}, 300)
+			unregisterListener()
 		  }
 		//}, 100)
 	  }
@@ -258,19 +260,19 @@ Array.prototype.remove = function (value) {
 	  scaleOrigin = { x, y }
 	  return { left: offsetLeft, top: offsetTop }
 	}
-
-	// 操作事件
-	window.addEventListener('pointerdown', function (e) {
-	  e.preventDefault()
-	  touches.set(e.pointerId, e) // TODO: 点击存入触摸点
-	  isTouching = true
-	  startPoint = { x: e.clientX, y: e.clientY }
-	  if (touches.size === 2) { // TODO: 判断双指触摸，并立即记录初始数据
-		lastDistance = getDistance()
-		lastScale = scale
-	  }
-	})
-	window.addEventListener('pointerup', function (e) {
+	
+	function func_pointerdown(e) {
+		  //e.preventDefault()
+		  touches.set(e.pointerId, e) // TODO: 点击存入触摸点
+		  isTouching = true
+		  startPoint = { x: e.clientX, y: e.clientY }
+		  if (touches.size === 2) { // TODO: 判断双指触摸，并立即记录初始数据
+			lastDistance = getDistance()
+			lastScale = scale
+		  }
+	}
+	
+	function func_pointerup(e) {
 	  touches.delete(e.pointerId) // TODO: 抬起移除触摸点
 	  if (touches.size <= 0) {
 		isTouching = false
@@ -286,8 +288,9 @@ Array.prototype.remove = function (value) {
 		// 更新点位
 		startPoint = { x: touchArr[0][1].clientX, y: touchArr[0][1].clientY }
 	  }
-	})
-	window.addEventListener('pointermove', (e) => {
+	}
+	
+	function func_pointermove(e){
 	  e.preventDefault()
 	  if (isTouching) {
 		isMove = true
@@ -311,10 +314,27 @@ Array.prototype.remove = function (value) {
 		  changeStyle(cloneEl, ['transition: all 0s', `transform: translate(${offset.left + 'px'}, ${offset.top + 'px'}) scale(${scale})`, `transform-origin: ${origin}`])
 		}
 	  }
-	})
-	window.addEventListener('pointercancel', function (e) {
-	  touches.clear() // 可能存在特定事件导致中断，真机操作时 pointerup 在某些边界情况下不会生效，所以需要清空
-	})
+	}
+	
+	function func_pointercancel(e) {
+		  touches.clear() // 可能存在特定事件导致中断，真机操作时 pointerup 在某些边界情况下不会生效，所以需要清空
+	}
+		
+	function registerListener(){
+		// 操作事件
+		window.addEventListener('pointerdown', func_pointerdown)
+		window.addEventListener('pointerup', func_pointerup)
+		window.addEventListener('pointermove', func_pointermove)
+		window.addEventListener('pointercancel', func_pointercancel)
+	}
+	
+	function unregisterListener(){
+		// 操作事件
+		window.removeEventListener('pointerdown', func_pointerdown)
+		window.removeEventListener('pointerup', func_pointerup)
+		window.removeEventListener('pointermove', func_pointermove)
+		window.removeEventListener('pointercancel', func_pointercancel)
+	}
 
 	// 修改样式，减少回流重绘
 	function changeStyle(el, arr) {
