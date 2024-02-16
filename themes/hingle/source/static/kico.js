@@ -274,14 +274,18 @@ Array.prototype.remove = function (value) {
 	  touches.delete(e.pointerId) // TODO: 抬起移除触摸点
 	  if (touches.size <= 0) {
 		isTouching = false
+		if('ontouchstart' in document.documentElement) {
+			isMove = false
+		} else {
+			setTimeout(() => {
+				isMove = false
+			}, 300);
+		}
 	  } else {
 		const touchArr = Array.from(touches)
 		// 更新点位
 		startPoint = { x: touchArr[0][1].clientX, y: touchArr[0][1].clientY }
 	  }
-	  //setTimeout(() => {
-		isMove = false
-	  //}, 300);
 	})
 	window.addEventListener('pointermove', (e) => {
 	  e.preventDefault()
