@@ -2,7 +2,7 @@
 title: PolarCTF靶场Reverse方向简单难度Writeup
 typora-root-url: PolarCTF-Reverse-Easy-Writeup
 date: 2024-02-16 00:25:39
-tags:
+tags: wp
 categories: Writeup
 ---
 
@@ -191,7 +191,7 @@ for (int i = 0; i < strlen(user_input); i++)
 
 ## 另辟蹊径
 
-**该题目存在感染型病毒，运行前需要注意清除病毒，如果不清除病毒直接调试程序会停在病毒的入口点，导致直接搜索字符串不能找到对题目有帮助的信息**
+**截止该文章发布时，该题目存在感染型病毒，运行前需要注意清除病毒**
 
 ![image-20240216224933629](image-20240216224933629.png)
 
@@ -556,3 +556,467 @@ while(i <= 31)
 ![image-20240217010249628](image-20240217010249628.png)
 
 提交flag{F1laig}返回正确
+
+
+
+## ？64
+
+运行输出一段字符串：ZmxBZ19pc2hlUmU=
+
+![image-20240217221346485](image-20240217221346485.png)
+
+猜测是base64编码，解码得`flAg_isheRe`
+
+直接提交提示错误，按照靶场惯例将其进行md5值计算
+
+得到flag{5d15777a411724ee5d029caca1ca7298}
+
+提交提示正确
+
+## Sign Up
+
+
+
+>  找到正确的账号和密码 拼接起来MD5即是正确答案。 例如 账号123 密码 root 答案 : flag{md5(123root)}
+
+![image-20240217221805393](image-20240217221805393.png)
+
+通过在调试器中搜索字符串，我们可以找到要求我们输入账号密码的函数
+
+```nasm
+0000000000401530 | 55         | push rbp                                      |
+0000000000401531 | 48:89E5    | mov rbp,rsp                                   |
+0000000000401534 | 48:83EC 20 | sub rsp,20                                    |
+0000000000401538 | 48:8D0D C1 | lea rcx,qword ptr ds:[404000]                 | 0000000000404000:"请输入账号和密码:"
+000000000040153F | E8 FC16000 | call <JMP.&puts>                              |
+0000000000401544 | 48:8D0D F5 | lea rcx,qword ptr ds:[<input_username>]       | 0000000000407040:"111"
+000000000040154B | E8 E816000 | call <JMP.&gets>                              |
+0000000000401550 | 48:8D0D E9 | lea rcx,qword ptr ds:[<input_password>]       | 0000000000407140:"222"
+0000000000401557 | E8 DC16000 | call <JMP.&gets>                              |
+000000000040155C | 48:8D0D DD | lea rcx,qword ptr ds:[<input_username>]       | 0000000000407040:"111"
+0000000000401563 | E8 D816000 | call <JMP.&puts>                              |
+0000000000401568 | 48:8D0D D1 | lea rcx,qword ptr ds:[<input_password>]       | 0000000000407140:"222"
+000000000040156F | E8 CC16000 | call <JMP.&puts>                              |
+0000000000401574 | 90         | nop                                           |
+0000000000401575 | 48:83C4 20 | add rsp,20                                    |
+0000000000401579 | 5D         | pop rbp                                       |
+000000000040157A | C3         | ret                                           |
+```
+
+以上代码接收了我们的输入，并将其存储在内存地址中，并且输出了我们的输入
+
+由于这里我已经输入了内容，注释中存在内存地址指向的字符串，也就是我输入的账号密码
+
+同样可以搜索字符串，或者找到以上函数的调用处，然后紧跟着的函数调用为下方函数：
+
+```nasm
+000000000040157B | 55         | push rbp                                      |
+000000000040157C | 48:89E5    | mov rbp,rsp                                   |
+000000000040157F | 48:83EC 30 | sub rsp,30                                    |
+0000000000401583 | C745 FC 01 | mov dword ptr ss:[rbp-4],1                    | username_correct = true
+000000000040158A | C745 F8 01 | mov dword ptr ss:[rbp-8],1                    | password_correct = false
+0000000000401591 | C745 F4 00 | mov dword ptr ss:[rbp-C],0                    | i = 0
+0000000000401598 | EB 3A      | jmp sign_up.4015D4                            |
+000000000040159A | 8B45 F4    | mov eax,dword ptr ss:[rbp-C]                  |
+000000000040159D | 48:63D0    | movsxd rdx,eax                                |
+00000000004015A0 | 48:8D05 99 | lea rax,qword ptr ds:[<input_username>]       | 0000000000407040:"111"
+00000000004015A7 | 0FB60402   | movzx eax,byte ptr ds:[rdx+rax]               |
+00000000004015AB | 0FBEC0     | movsx eax,al                                  | eax = input_username[i]
+00000000004015AE | 8D48 01    | lea ecx,qword ptr ds:[rax+1]                  | ecx = eax + 1
+00000000004015B1 | 8B45 F4    | mov eax,dword ptr ss:[rbp-C]                  |
+00000000004015B4 | 48:63D0    | movsxd rdx,eax                                |
+00000000004015B7 | 48:8D05 52 | lea rax,qword ptr ds:[<username>]             | 0000000000403010:"192168109"
+00000000004015BE | 0FB60402   | movzx eax,byte ptr ds:[rdx+rax]               |
+00000000004015C2 | 0FBEC0     | movsx eax,al                                  | eax = username[i]
+00000000004015C5 | 39C1       | cmp ecx,eax                                   |
+00000000004015C7 | 74 07      | je sign_up.4015D0                             | jump if ecx == eax
+00000000004015C9 | C745 FC 00 | mov dword ptr ss:[rbp-4],0                    | username_correct = false
+00000000004015D0 | 8345 F4 01 | add dword ptr ss:[rbp-C],1                    |
+00000000004015D4 | 837D F4 06 | cmp dword ptr ss:[rbp-C],6                    |
+00000000004015D8 | 7E C0      | jle sign_up.40159A                            | jump if i <= 6
+00000000004015DA | C745 F0 00 | mov dword ptr ss:[rbp-10],0                   | j = 0
+00000000004015E1 | EB 3A      | jmp sign_up.40161D                            |
+00000000004015E3 | 8B45 F0    | mov eax,dword ptr ss:[rbp-10]                 | [rbp-10]:&"D:\\CTF\\PolarCTF\\Reverse\\easy\\Sign_up.exe"
+00000000004015E6 | 48:63D0    | movsxd rdx,eax                                |
+00000000004015E9 | 48:8D05 50 | lea rax,qword ptr ds:[<input_password>]       | 0000000000407140:"222"
+00000000004015F0 | 0FB60402   | movzx eax,byte ptr ds:[rdx+rax]               |
+00000000004015F4 | 0FBEC0     | movsx eax,al                                  | eax = input_password[j]
+00000000004015F7 | 8D48 02    | lea ecx,qword ptr ds:[rax+2]                  | ecx = eax + 2
+00000000004015FA | 8B45 F0    | mov eax,dword ptr ss:[rbp-10]                 | [rbp-10]:&"D:\\CTF\\PolarCTF\\Reverse\\easy\\Sign_up.exe"
+00000000004015FD | 48:63D0    | movsxd rdx,eax                                |
+0000000000401600 | 48:8D05 13 | lea rax,qword ptr ds:[<password>]             | 000000000040301A:"root"
+0000000000401607 | 0FB60402   | movzx eax,byte ptr ds:[rdx+rax]               |
+000000000040160B | 0FBEC0     | movsx eax,al                                  | eax = password[j]
+000000000040160E | 39C1       | cmp ecx,eax                                   |
+0000000000401610 | 74 07      | je sign_up.401619                             | jump if ecx == eax
+0000000000401612 | C745 F8 00 | mov dword ptr ss:[rbp-8],0                    | password_correct = false
+0000000000401619 | 8345 F0 01 | add dword ptr ss:[rbp-10],1                   | [rbp-10]:&"D:\\CTF\\PolarCTF\\Reverse\\easy\\Sign_up.exe"
+000000000040161D | 837D F0 03 | cmp dword ptr ss:[rbp-10],3                   | [rbp-10]:&"D:\\CTF\\PolarCTF\\Reverse\\easy\\Sign_up.exe"
+0000000000401621 | 7E C0      | jle sign_up.4015E3                            |
+0000000000401623 | 837D FC 00 | cmp dword ptr ss:[rbp-4],0                    |
+0000000000401627 | 75 14      | jne sign_up.40163D                            | jump if username_correct == true
+0000000000401629 | 837D F8 00 | cmp dword ptr ss:[rbp-8],0                    |
+000000000040162D | 75 0E      | jne sign_up.40163D                            | jump if password_correct == true
+000000000040162F | 48:8D0D DC | lea rcx,qword ptr ds:[404012]                 | 0000000000404012:"账号密码错误:"
+0000000000401636 | E8 0516000 | call <JMP.&puts>                              |
+000000000040163B | EB 35      | jmp sign_up.401672                            |
+000000000040163D | 837D FC 00 | cmp dword ptr ss:[rbp-4],0                    |
+0000000000401641 | 75 0E      | jne sign_up.401651                            | jump if username_correct == true
+0000000000401643 | 48:8D0D D6 | lea rcx,qword ptr ds:[404020]                 | 0000000000404020:"账号错误:"
+000000000040164A | E8 F115000 | call <JMP.&puts>                              |
+000000000040164F | EB 21      | jmp sign_up.401672                            |
+0000000000401651 | 837D F8 00 | cmp dword ptr ss:[rbp-8],0                    |
+0000000000401655 | 75 0E      | jne sign_up.401665                            | jump if password_correct == true
+0000000000401657 | 48:8D0D CC | lea rcx,qword ptr ds:[40402A]                 | 000000000040402A:"密码错误:"
+000000000040165E | E8 DD15000 | call <JMP.&puts>                              |
+0000000000401663 | EB 0D      | jmp sign_up.401672                            |
+0000000000401665 | 48:8D0D C8 | lea rcx,qword ptr ds:[404034]                 | 0000000000404034:"密码正确!"
+000000000040166C | E8 D715000 | call <JMP.&printf>                            |
+0000000000401671 | 90         | nop                                           |
+0000000000401672 | 48:83C4 30 | add rsp,30                                    |
+0000000000401676 | 5D         | pop rbp                                       |
+0000000000401677 | C3         | ret                                           |
+```
+
+在其中，我们可以发现两处循环
+
+第一个循环从`0000000000401591`到`00000000004015D8`结束
+
+```nasm
+0000000000401591 | C745 F4 00 | mov dword ptr ss:[rbp-C],0                    | i = 0
+0000000000401598 | EB 3A      | jmp sign_up.4015D4                            |
+000000000040159A | 8B45 F4    | mov eax,dword ptr ss:[rbp-C]                  |
+000000000040159D | 48:63D0    | movsxd rdx,eax                                |
+00000000004015A0 | 48:8D05 99 | lea rax,qword ptr ds:[<input_username>]       | 0000000000407040:"111"
+00000000004015A7 | 0FB60402   | movzx eax,byte ptr ds:[rdx+rax]               |
+00000000004015AB | 0FBEC0     | movsx eax,al                                  | eax = input_username[i]
+00000000004015AE | 8D48 01    | lea ecx,qword ptr ds:[rax+1]                  | ecx = eax + 1
+00000000004015B1 | 8B45 F4    | mov eax,dword ptr ss:[rbp-C]                  |
+00000000004015B4 | 48:63D0    | movsxd rdx,eax                                |
+00000000004015B7 | 48:8D05 52 | lea rax,qword ptr ds:[<username>]             | 0000000000403010:"192168109"
+00000000004015BE | 0FB60402   | movzx eax,byte ptr ds:[rdx+rax]               |
+00000000004015C2 | 0FBEC0     | movsx eax,al                                  | eax = username[i]
+00000000004015C5 | 39C1       | cmp ecx,eax                                   |
+00000000004015C7 | 74 07      | je sign_up.4015D0                             | jump if ecx == eax
+00000000004015C9 | C745 FC 00 | mov dword ptr ss:[rbp-4],0                    | username_correct = false
+00000000004015D0 | 8345 F4 01 | add dword ptr ss:[rbp-C],1                    |
+00000000004015D4 | 837D F4 06 | cmp dword ptr ss:[rbp-C],6                    |
+00000000004015D8 | 7E C0      | jle sign_up.40159A                            | jump if i <= 6
+```
+
+该循环中将`input_username`（用户输入的用户名）逐字节+1与`username`（程序中存储的字符串）进行比较，如果任何字符不同，会将`rbp-4`处的局部变量赋值为0，而该变量在下方用于决定是否输出账号错误的提示
+
+```nasm
+000000000040163D | 837D FC 00 | cmp dword ptr ss:[rbp-4],0                    |
+0000000000401641 | 75 0E      | jne sign_up.401651                            | jump if username_correct == true
+0000000000401643 | 48:8D0D D6 | lea rcx,qword ptr ds:[404020]                 | 0000000000404020:"账号错误:"
+000000000040164A | E8 F115000 | call <JMP.&puts>                              |
+```
+
+因此我们将该变量命名为`username_correct`
+
+上方代码还原伪代码如下：
+
+```c
+bool username_correct = true;
+
+for (int i = 0; i <= 6; i++)
+{
+    char a1 = input_username[i] + 1;
+    char a2 = username[i];
+    if (a1 != a2)
+    {
+        username_correct = false;
+    }
+}
+```
+
+这里需要注意，我们调试器中标记`username`为`192168109`，而程序仅仅变换并校验了前7位，也就是`1921681`需要变换，变换后直接拼接`09`即可
+
+对照上方代码，我们可以得出正确的账号为：`081057009`
+
+然后我们观察校验密码的部分代码：
+
+```nasm
+00000000004015DA | C745 F0 00 | mov dword ptr ss:[rbp-10],0                   | j = 0
+00000000004015E1 | EB 3A      | jmp sign_up.40161D                            |
+00000000004015E3 | 8B45 F0    | mov eax,dword ptr ss:[rbp-10]                 | [rbp-10]:&"D:\\CTF\\PolarCTF\\Reverse\\easy\\Sign_up.exe"
+00000000004015E6 | 48:63D0    | movsxd rdx,eax                                |
+00000000004015E9 | 48:8D05 50 | lea rax,qword ptr ds:[<input_password>]       | 0000000000407140:"222"
+00000000004015F0 | 0FB60402   | movzx eax,byte ptr ds:[rdx+rax]               |
+00000000004015F4 | 0FBEC0     | movsx eax,al                                  | eax = input_password[j]
+00000000004015F7 | 8D48 02    | lea ecx,qword ptr ds:[rax+2]                  | ecx = eax + 2
+00000000004015FA | 8B45 F0    | mov eax,dword ptr ss:[rbp-10]                 | [rbp-10]:&"D:\\CTF\\PolarCTF\\Reverse\\easy\\Sign_up.exe"
+00000000004015FD | 48:63D0    | movsxd rdx,eax                                |
+0000000000401600 | 48:8D05 13 | lea rax,qword ptr ds:[<password>]             | 000000000040301A:"root"
+0000000000401607 | 0FB60402   | movzx eax,byte ptr ds:[rdx+rax]               |
+000000000040160B | 0FBEC0     | movsx eax,al                                  | eax = password[j]
+000000000040160E | 39C1       | cmp ecx,eax                                   |
+0000000000401610 | 74 07      | je sign_up.401619                             | jump if ecx == eax
+0000000000401612 | C745 F8 00 | mov dword ptr ss:[rbp-8],0                    | password_correct = false
+0000000000401619 | 8345 F0 01 | add dword ptr ss:[rbp-10],1                   | [rbp-10]:&"D:\\CTF\\PolarCTF\\Reverse\\easy\\Sign_up.exe"
+000000000040161D | 837D F0 03 | cmp dword ptr ss:[rbp-10],3                   | [rbp-10]:&"D:\\CTF\\PolarCTF\\Reverse\\easy\\Sign_up.exe"
+0000000000401621 | 7E C0      | jle sign_up.4015E3                            |
+```
+
+代码与校验用户名的代码极其相似，不同之处在于`00000000004015F7`处的指令为`lea ecx,qword ptr ds:[rax+2]`，这里我们需要将程序中的密码逐字节-2，得出我们输入的密码
+
+root->pmmr
+
+最终我们得到，账号为081057009，密码为pmmr，输入程序中校验，得到密码正确
+
+![image-20240217225235004](image-20240217225235004.png)
+
+flag为flag{aa07caa2ff9e5b774bfca3b1f20c3ea0}
+
+### 总结
+
+该题需要注意用户名变换的位数，程序中虽然只校验前7位，但最终平台还是只认变换前7位+不变的后2位
+
+## easyre1
+
+![image-20240217225650974](image-20240217225650974.png)
+
+ELF32，用ida看一下
+
+主函数：
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  __isoc99_scanf("%s", flag);
+  enkey();
+  reduce();
+  check();
+  return 0;
+}
+```
+
+其中接收了一个用户输入，存在命名为flag的变量中，接下来看看check函数
+
+```c
+int check()
+{
+  if ( !strcmp(flag, "d^XSAozQPU^WOBU[VQOATZSE@AZZVOF") )
+    return puts("you are right");
+  else
+    return puts("no no no");
+}
+```
+
+该函数将flag与一串字符串进行比较，我们推测enkey和reduce中有对flag变量进行变换的内容
+
+```c
+int enkey()
+{
+  int i; // [esp+Ch] [ebp-4h]
+
+  for ( i = 0; i <= 31; ++i )
+    *(i + 134520992) ^= *(i + 134520896);
+  return 0;
+}
+```
+
+enkey函数中有一个对固定地址的写入，被写入地址转为十六进制为`0x804A0A0`，读取地址为`0x804A040`
+
+在ida中转为十六进制显示后双击转到，可以看到`0x804A0A0`处是我们输入的flag
+
+![image-20240217230026029](image-20240217230026029.png)
+
+同样转到`0x804A040`处看到这里是固定的字符串`5055045045055045055045055045055`
+
+![image-20240217230106826](image-20240217230106826.png)
+
+enkey函数将我们的输入值与key处的内容逐字节做异或运算，并放回flag变量中
+
+
+
+我们继续查看reduce函数
+
+```c
+int reduce()
+{
+  int i; // [esp+Ch] [ebp-Ch]
+
+  for ( i = 0; i <= 30; ++i )
+    --*(i + 0x804A0A0);
+  putchar(10);
+  return 0;
+}
+```
+
+该函数访问了`0x804A0A0`处的变量，并对其前31个字节逐字节进行-1的操作，我们知道`0x804A0A0`为flag变量，即我们的输入值
+
+至此对flag变量的变换已经结束，之后就是check函数中调用strcmp与`"d^XSAozQPU^WOBU[VQOATZSE@AZZVOF"`进行比较了
+
+根据上面的信息我们可以写出脚本对`"d^XSAozQPU^WOBU[VQOATZSE@AZZVOF"`进行变换，首先将其前31个字符逐字节+1，然后再将其与`"5055045045055045055045055045055"`逐字节进行异或运算，即可得出flag
+
+![image-20240217230907772](image-20240217230907772.png)
+
+参考脚本：
+
+```python
+encrypt = "d^XSAozQPU^WOBU[VQOATZSE@AZZVOF"
+key = "5055045045055045055045055045055"
+flag = ""
+for i in range(len(encrypt)):
+    if i == 31: 							# 原程序中仅对前31个字节进行-1
+            continue
+    flag += chr(ord(encrypt[i]) + 1)
+    
+flag_ = ""
+for i in range(len(flag)):
+    flag_ += chr(ord(flag[i]) ^ ord(key[i]))
+print(flag_)
+```
+
+最终得出flag：flag{PolarDNbecomesbiggerandstronger}
+
+## babyRE
+
+![image-20240217231209745](image-20240217231209745.png)
+
+easy难度里的最后一题，上ida开摆（
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  __int64 v3; // rax
+  char input[48]; // [rsp+20h] [rbp-20h] BYREF
+
+  _main();
+  endoce();
+  std::string::basic_string(input);
+  std::operator>><char>(refptr__ZSt3cin, input);
+  if ( std::operator==<char>(input, &flag[abi:cxx11]) )
+    v3 = std::operator<<<std::char_traits<char>>(refptr__ZSt4cout, "Ok");
+  else
+    v3 = std::operator<<<std::char_traits<char>>(refptr__ZSt4cout, "Err");
+  (refptr__ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)(v3);
+  std::string::~string(input);
+  return 0;
+}
+```
+
+上面我们可以看到，该题目使用C++编写，使用了一个if校验我们的输入与`flag`是否相等
+
+endoce函数如下：
+
+```c
+__int64 endoce()
+{
+  __int64 result; // rax
+  __int64 v1; // [rsp+20h] [rbp-20h] BYREF
+  __int64 v2; // [rsp+28h] [rbp-18h] BYREF
+  _BYTE *v3; // [rsp+30h] [rbp-10h]
+  void *v4; // [rsp+38h] [rbp-8h]
+
+  v4 = &flag[abi:cxx11];
+  v2 = std::string::begin(&flag[abi:cxx11]);
+  v1 = std::string::end(&flag[abi:cxx11]);
+  while ( 1 )
+  {
+    result = __gnu_cxx::operator!=<char *,std::string>(&v2, &v1);
+    if ( !result )
+      break;
+    v3 = __gnu_cxx::__normal_iterator<char *,std::string>::operator*(&v2);
+    *v3 += 2;
+    __gnu_cxx::__normal_iterator<char *,std::string>::operator++(&v2);
+  }
+  return result;
+}
+```
+
+里面的代码主要是将`flag`逐字节 + 2，如果我们在ida中点进`flag`应该会看到许多问号
+
+![image-20240217232030749](image-20240217232030749.png)
+
+这里的变量在`_main`函数中`_do_global_ctors`的调用被初始化
+
+```c
+void __cdecl _do_global_ctors()
+{
+  unsigned int v0; // ecx
+  void (**v1)(void); // rbx
+  __int64 *v2; // rsi
+  unsigned int v3; // eax
+
+  v0 = *refptr___CTOR_LIST__;
+  if ( v0 == -1 )
+  {
+    v3 = 0;
+    do
+      v0 = v3++;
+    while ( refptr___CTOR_LIST__[v3] );
+  }
+  if ( v0 )
+  {
+    v1 = &refptr___CTOR_LIST__[v0];
+    v2 = &refptr___CTOR_LIST__[v0 - (v0 - 1) - 1];
+    do
+      (*v1--)();
+    while ( v1 != v2 );
+  }
+  atexit(_do_global_dtors);
+}
+```
+
+其中
+
+```c
+  if ( v0 )
+  {
+    v1 = &refptr___CTOR_LIST__[v0];
+    v2 = &refptr___CTOR_LIST__[v0 - (v0 - 1) - 1];
+    do
+      (*v1--)();
+    while ( v1 != v2 );
+  }
+```
+
+![image-20240217232302837](image-20240217232302837.png)
+
+这里的`dq offset _GLOBAL__sub_I__Z4flagB5cxx11`实现了对`flag`的初始化
+
+
+
+```c
+int __static_initialization_and_destruction_0(void)
+{
+  __int64 v1; // [rsp+0h] [rbp-30h] BYREF
+  char v2; // [rsp+27h] [rbp-9h] BYREF
+  __int64 v3; // [rsp+28h] [rbp-8h]
+
+  v3 = &v1 + 39;
+  std::string::basic_string<std::allocator<char>>(&flag[abi:cxx11], "asdfgcvbnmjgtlop", v3);
+  std::__new_allocator<char>::~__new_allocator(&v2);
+  return atexit(_tcf_0);
+}
+```
+
+可以看到，最终`flag`初始化的值为`"asdfgcvbnmjgtlop"`
+
+同样的，我们可以在调试器中步过`_main`函数调用后发现`flag`的值
+
+![image-20240217232542564](image-20240217232542564.png)
+
+> 回到endoce函数：里面的代码主要是将`flag`逐字节 + 2
+
+我们可以将`flag`的内容逐字节+2，得到的值作为输入，给到我们的程序即为正确解
+
+![image-20240217232752199](image-20240217232752199.png)
+
+参考脚本：
+
+```python
+flag = "asdfgcvbnmjgtlop"
+flag_ = ""
+for i in range(len(flag)):
+    flag_ += chr(ord(flag[i]) + 2
+print(flag_)
+```
+
+![image-20240217232848188](image-20240217232848188.png)
+
+（完）
+
