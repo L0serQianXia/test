@@ -872,6 +872,20 @@ print(flag_)
 
 最终得出flag：flag{PolarDNbecomesbiggerandstronger}
 
+### 总结
+
+本程序中访问一些变量使用如下方式：
+
+```nasm
+.text:0804851C 8B 45 F4                      mov     eax, [ebp+var_C]
+.text:0804851F 05 A0 A0 04 08                add     eax, 804A0A0h
+.text:08048524 0F B6 00                      movzx   eax, byte ptr [eax]
+```
+
+没有直接给eax赋值变量地址，避免了ida识别出变量进而通过交叉引用找到修改变量的位置
+
+![image-20240218001104051](image-20240218001104051.png)
+
 ## babyRE
 
 ![image-20240217231209745](image-20240217231209745.png)
