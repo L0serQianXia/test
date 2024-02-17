@@ -14,7 +14,7 @@
             <% } %>
             </div>
         </section>
-        <article class="post-content">
+        <article class="post-content" id="post-context">
         <% if (moment().unix() - page.date.unix() >= 15552000) { %>
             <blockquote>这篇文章上次修改于 <%= Math.ceil((moment().unix() - page.date.unix()) / 86400) %> 天前，可能其部分内容已经发生变化，如有疑问可询问作者。</blockquote>
         <% } %>
@@ -80,5 +80,15 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/show-language/prism-show-language.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery_lazyload/1.9.7/jquery.lazyload.js"></script>
+		<script type="text/javascript">
+		$(function() {    
+          $("img").lazyload({
+            placeholder:"/blog/static/img/loading.gif",
+              effect:"fadeIn"
+            });
+          });
+		</script>
     </div>
 </main>

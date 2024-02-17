@@ -174,6 +174,16 @@ Array.prototype.remove = function (value) {
 	let lastDistance = 0
 	let lastScale = 1 // 记录下最后的缩放值
 	let scaleOrigin = { x: 0, y: 0, }
+	
+	document.getElementById('post-context').addEventListener('click', function (e) {
+	  e.preventDefault()
+	  if (e.target instanceof Image) {
+		originalEl = e.target
+		cloneEl = originalEl.cloneNode(true)
+		originalEl.style.opacity = 0
+		openPreview()
+	  }
+	})
 
 	const { innerWidth: winWidth, innerHeight: winHeight } = window
 	let cloneEl = null
