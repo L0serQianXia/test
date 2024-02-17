@@ -3,7 +3,7 @@
         <section class="post-title">
             <h2><%= page.title ? page.title : "没有标题的文章" %></h2>
             <div class="post-meta">
-                <time class="date"><%= date(page.date, "YYYY.MM.DD HH:MM:SS") %></time>
+                <time class="date"><%= date(page.date, "YYYY.MM.DD HH:mm:ss") %></time>
             <% if (page.categories && page.categories.length){ %>
                 <span class="category"><%- list_categories(page.categories, {
                     show_count: false,
