@@ -177,7 +177,6 @@ Array.prototype.remove = function (value) {
 	
 	if(document.getElementById('post-context') !== null) {
 		document.getElementById('post-context').addEventListener('click', function (e) {
-			e.preventDefault()
 			if (e.target instanceof Image) {
 				originalEl = e.target
 				cloneEl = originalEl.cloneNode(true)
