@@ -656,5 +656,5 @@ categories: Reverse
 
 ## 例子下载
 
-[MoleBox2.36.exe](/blog/static/attachment/MoleBox2.36.exe)
+[MoleBox2.36.exe](https://www.lanzv.com/il4BY1oxd30f)
 
