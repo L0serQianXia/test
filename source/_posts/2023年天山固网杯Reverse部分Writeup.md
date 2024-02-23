@@ -2,7 +2,10 @@
 title: 2023年天山固网杯Reverse方向部分Writeup
 typora-root-url: 2023年天山固网杯Reverse部分Writeup
 date: 2024-02-22 01:04:26
-tags: re
+tags: 
+- CTF
+- wp
+- Writeup
 categories: Writeup
 ---
 

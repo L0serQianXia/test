@@ -2,8 +2,11 @@
 title: 手脱MoleBox2.36的学习
 typora-root-url: Unpack-MoleBox2-36
 date: 2024-02-18 20:43:03
-tags: unpack
-categories: Reverse
+tags: 
+- Unpack
+categories: 
+- Reverse
+- Unpack
 ---
 
 网上已经有许多资料研究MoleBox这个壳，这里同样记录一下研究这个壳的过程，本人也在学习中，如有错误还请指出，谢谢！
