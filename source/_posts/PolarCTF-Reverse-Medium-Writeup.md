@@ -253,7 +253,7 @@ flag为`flag{a5dd39834f606a4c00cc83d507c5e599}`
 
 ## 左右为难
 
-![image-20240224230217819](/image-20240224230217819.png)
+![image-20240224230217819](image-20240224230217819.png)
 
 迷宫题，IDA反编译:
 
@@ -330,13 +330,13 @@ int __cdecl main(int argc, const char **argv, const char **envp)
 sssssdddddwwaawwdddwddsssddwwddssdss
 ```
 
-![image-20240224230918581](/image-20240224230918581.png)
+![image-20240224230918581](image-20240224230918581.png)
 
 flag为`flag{f787a0b786068936636c1e10e246a297}`
 
 ## 混淆Code？
 
-![image-20240224233333266](/image-20240224233333266.png)
+![image-20240224233333266](image-20240224233333266.png)
 
 IDA中反编译
 
@@ -421,7 +421,7 @@ __int64 X(void)
 
 X函数对我们的输入字符串进行了变换
 
-![image-20240224233444038](/image-20240224233444038.png)
+![image-20240224233444038](image-20240224233444038.png)
 
 j是全局变量，而且只有该函数中引用，初始值为8
 
@@ -491,9 +491,9 @@ size_t Check_Length(void)
 
 而名为flag的全局变量在IDA的交叉引用中并未找到其他调用
 
-![image-20240224234002620](/image-20240224234002620.png)
+![image-20240224234002620](image-20240224234002620.png)
 
-![image-20240224234013442](/image-20240224234013442.png)
+![image-20240224234013442](image-20240224234013442.png)
 
 可以看到flag变量大小为2740h，此处没有其他变量，即使是for循环写入最大值3737（E99h）也不会影响到其他变量，所以我们暂时不管他
 
@@ -518,7 +518,7 @@ print(flag_)
 
 输出结果为`hello world!`
 
-![image-20240224235026590](/image-20240224235026590.png)
+![image-20240224235026590](image-20240224235026590.png)
 
 flag为`flag{fc3ff98e8c6a0d3087d515c0473f8677}`
 
@@ -530,7 +530,7 @@ flag为`flag{fc3ff98e8c6a0d3087d515c0473f8677}`
 
 查看MANIFEST.MF文件可知主类为main.java.Test
 
-![image-20240224235751420](/image-20240224235751420.png)
+![image-20240224235751420](image-20240224235751420.png)
 
 反编译如下：
 
@@ -632,13 +632,13 @@ print(flag)
 
 输出结果为：HelloWorld!
 
-![image-20240225000444816](/image-20240225000444816.png)
+![image-20240225000444816](image-20240225000444816.png)
 
 flag为`flag{06e0e6637d27b2622ab52022db713ce2}`
 
 ## PY_RE
 
-![image-20240225000617533](/image-20240225000617533.png)
+![image-20240225000617533](image-20240225000617533.png)
 
 ```python
 import Test
@@ -693,7 +693,7 @@ def Judge(Input_Str):
 
 输入HELLO__PYTHON提示YES
 
-![image-20240225001434360](/image-20240225001434360.png)
+![image-20240225001434360](image-20240225001434360.png)
 
 md5后提交提示正确
 
@@ -701,7 +701,7 @@ flag为`flag{ceee59bbd765a9cb20daa0c1d2b3b9d0}`
 
 ## 二层防御
 
-![image-20240225001616303](/image-20240225001616303.png)
+![image-20240225001616303](image-20240225001616303.png)
 
 查壳发现UPX，upx -d 脱一下
 
@@ -743,11 +743,11 @@ __int64 check(void)
 
 其中将flag1与输入字符串进行比较
 
-![image-20240225001954556](/image-20240225001954556.png)
+![image-20240225001954556](image-20240225001954556.png)
 
 flag1是固定值`allo_PWN n`，于是我们怀疑对`input_flag`做了变换
 
-![image-20240225002103554](/image-20240225002103554.png)
+![image-20240225002103554](image-20240225002103554.png)
 
 交叉引用确实存在很多处代码
 
@@ -767,7 +767,7 @@ size_t Check_Length(void)
 
 Check_Length函数判断了input_flag的长度，决定了tick的值
 
-![image-20240225002206478](/image-20240225002206478.png)
+![image-20240225002206478](image-20240225002206478.png)
 
 但是tick的交叉引用没有别处代码引用了tick，暂时不能确定flag的长度
 
@@ -830,7 +830,7 @@ __int64 sub133(void)
 
 该函数将input_flag逐字节先与x1异或，然后-1，x1的值来自全局变量j，根据交叉引用，没有别处调用了j，j的值始终为8
 
-![image-20240225002623612](/image-20240225002623612.png)
+![image-20240225002623612](image-20240225002623612.png)
 
 sub122函数返回后，调用check函数
 
@@ -849,6 +849,8 @@ for i in range(1, int(len(flag) / 2)):
 print("".join(flag))
 ```
 
-![image-20240225004712777](/image-20240225004712777.png)
+![image-20240225004712777](image-20240225004712777.png)
 
 flag为`flag{ab2c636ddee2f907f3b38c151cb9b274}`
+
+（完）
