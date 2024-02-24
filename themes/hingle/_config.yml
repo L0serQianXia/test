@@ -2,15 +2,15 @@ author: '千夏' # 作者名称
 author_avatar: '/blog/static/img/icon.png' # 作者头像
 author_text: '是个飞舞，头像都是偷SuperSkidder的' # 作者信息
 social: # 社交链接
+  - title: '首页'
+    icon: 'home'
+    link: 'https://L0serQianXia.github.io/blog'
   - title: '邮件'
-    svg: '<svg t="1708494134116" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4511" width="200" height="200"><path d="M512 576a32 32 0 0 1-17.184-4.992L128 337.568v430.656A64 64 0 0 0 192.064 832h639.872A64 64 0 0 0 896 768.224V337.888l-366.816 233.12A32.096 32.096 0 0 1 512 576" fill="#707070" p-id="4512"></path><path d="M831.936 192H192.064A64 64 0 0 0 128 255.808v4.896l384 245.376 384-244.032v-6.24A64 64 0 0 0 831.936 192" fill="#707070" p-id="4513"></path></svg>'
+    icon: 'envelope'
     link: 'mailto:qianxia2333@qq.com'
   - title: 'Github'
     icon: 'github'
     link: 'https://github.com/L0serQianXia'
-  - title: '首页'
-    icon: 'home'
-    link: 'https://L0serQianXia.github.io/blog'
 background: '/blog/static/img/Background.jpg' # 主题背景
 menu: # 页眉菜单项目
   '关于我': /2024/02/15/about/
