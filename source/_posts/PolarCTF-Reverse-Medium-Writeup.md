@@ -1,7 +1,7 @@
 ---
-title: PolarCTF靶场Reverse方向中等难度Writeup（更新中）
+title: PolarCTF靶场Reverse方向中等难度Writeup
 typora-root-url: PolarCTF-Reverse-Medium-Writeup
-date: 2024-02-24 22:44:52
+date: 2024-02-25 00:44:52
 tags:
 - CTF
 - wp
@@ -250,3 +250,605 @@ flag为`flag{c68dd2625b9125411ba71f3d810341c4}`
 得到一个信息框，由于MessageBox函数先输入内容后输入标题，猜测flag为{a5dd39834f606a4c00cc83d507c5e599}，提交提示正确
 
 flag为`flag{a5dd39834f606a4c00cc83d507c5e599}`
+
+## 左右为难
+
+![image-20240224230217819](/image-20240224230217819.png)
+
+迷宫题，IDA反编译:
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  int v3; // ecx
+  char v4; // al
+  char v5; // dl
+  char v7[132]; // [esp+8h] [ebp-88h] BYREF
+
+  strcpy(
+    v7,
+    "00000000000000000@00000111000000010011110101110001001000010101000100111001110110010000100000001001111110000000$00000000000000000");
+  v3 = 0;
+  do
+  {
+    v4 = v7[v3++];
+    byte_41D2CF[v3] = v4;
+  }
+  while ( v4 );
+  x = 1;
+  y = 1;
+  puts("Welcome to the maze of my heart!\r\nPlease use 'wasd' control yourself, good luck!\r\nPress ary key to start:");
+  ((void (*)(void))sub_404DF7)();
+  sub_401010("Please input your route:", (char)"pause");
+  while ( 1 )
+  {
+    switch ( (unsigned __int8)j___fgetchar() )
+    {
+      case 'a':
+        --x;
+        break;
+      case 'd':
+        ++x;
+        break;
+      case 's':
+        ++y;
+        break;
+      case 'w':
+        --y;
+        break;
+      default:
+        continue;
+    }
+    v5 = byte_41D2D0[16 * y + x];
+    if ( v5 == '0' )
+      break;
+    if ( v5 == '$' )
+      success();
+    byte_41D2D0[16 * y + x] = '@';
+  }
+  sub_401010("You lose!!!\r\n", v7[0]);
+  return 0;
+}
+```
+
+可以看到，16个字符为一行，把地图拿出来划分好，碰到$为成功，@为目前所在位置，碰到0失败
+
+```
+0000000000000000
+0@00000111000000
+0100111101011100
+0100100001010100
+0100111001110110
+0100001000000010
+01111110000000$0
+0000000000000000
+```
+
+依照地图可以写出路线
+
+```
+sssssdddddwwaawwdddwddsssddwwddssdss
+```
+
+![image-20240224230918581](/image-20240224230918581.png)
+
+flag为`flag{f787a0b786068936636c1e10e246a297}`
+
+## 混淆Code？
+
+![image-20240224233333266](/image-20240224233333266.png)
+
+IDA中反编译
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  int j; // [rsp+28h] [rbp-58h]
+  int i; // [rsp+2Ch] [rbp-54h]
+
+  _main();
+  puts("Input :");
+  gets(input_flag);
+  Check_Length();
+  Strlen();
+  for ( i = 0; i < strlen(input_flag); ++i )
+  {
+    for ( j = 0; j < strlen(input_flag); ++j )
+    {
+      if ( (j & 1) != 0 )
+        flag[100 * j + i] = i + 98;
+      else
+        flag[100 * i + j] = j + 97;
+    }
+  }
+  if ( !tick )
+    X();
+  check();
+  return 0;
+}
+```
+
+先看check函数
+
+```c
+__int64 check(void)
+{
+  int *v0; // rdx
+  __int64 v2; // [rsp+0h] [rbp-80h] BYREF
+  _WORD v3[8]; // [rsp+20h] [rbp-60h] BYREF
+  int v4; // [rsp+80h] [rbp+0h]
+  int v5; // [rsp+84h] [rbp+4h] BYREF
+  int i; // [rsp+8Ch] [rbp+Ch]
+
+  strcpy((char *)v3, "`lfgc-y`b}v!");
+  HIBYTE(v3[6]) = 0;
+  v3[7] = 0;
+  memset(&v2 + 6, 0, 0x50ui64);
+  v4 = 0;
+  v0 = &v5;
+  for ( i = 0; i < x; ++i )
+  {
+    v0 = (int *)i;
+    if ( *((_BYTE *)v3 + i) != input_flag[i] )
+    {
+      printf("Error!");
+      return 0i64;
+    }
+  }
+  printf(aRight, v0);
+  return 1i64;
+}
+```
+
+里面将一串固定字符串与我们的输入进行比较
+
+```c
+__int64 X(void)
+{
+  __int64 result; // rax
+  int i; // [rsp+Ch] [rbp-4h]
+
+  for ( i = 0; ; ++i )
+  {
+    result = (unsigned int)(x - 1);
+    if ( (int)result <= i )
+      break;
+    input_flag[i] ^= j++;
+  }
+  return result;
+}
+```
+
+X函数对我们的输入字符串进行了变换
+
+![image-20240224233444038](/image-20240224233444038.png)
+
+j是全局变量，而且只有该函数中引用，初始值为8
+
+而这个名为x的全局变量，在Strlen函数中写入
+
+```c
+__int64 Strlen(void)
+{
+  __int64 result; // rax
+  int i; // [rsp+Ch] [rbp-4h]
+
+  for ( i = 0; ; ++i )
+  {
+    result = (unsigned __int8)input_flag[i];
+    if ( !(_BYTE)result )
+      break;
+    ++x;
+  }
+  return result;
+}
+```
+
+我们可以看到，x最终的值为输入内容的长度
+
+回看上面对输入字符串变换的函数（X函数）中的代码
+
+```c
+result = (unsigned int)(x - 1);
+if ( (int)result <= i )
+  break;
+```
+
+这里显示，我们并不对最后一个字符做变换
+
+了解以上信息，我们仍困惑于main函数的如下代码：
+
+```c
+for ( i = 0; i < strlen(input_flag); ++i )
+{
+    for ( j = 0; j < strlen(input_flag); ++j )
+    {
+      if ( (j & 1) != 0 )
+        flag[100 * j + i] = i + 98;
+      else
+        flag[100 * i + j] = j + 97;
+    }
+}
+if ( !tick )
+	X();
+```
+
+这个tick变量在Check_Length函数中被赋值
+
+```c
+size_t Check_Length(void)
+{
+  size_t result; // rax
+
+  result = strlen(input_flag);
+  if ( result != 37 )
+    tick = 0;
+  return result;
+}
+```
+
+如果我们输入字符串的长度不为37最终就会执行X函数，否则就不会执行（X函数就是变换字符串的函数）
+
+而名为flag的全局变量在IDA的交叉引用中并未找到其他调用
+
+![image-20240224234002620](/image-20240224234002620.png)
+
+![image-20240224234013442](/image-20240224234013442.png)
+
+可以看到flag变量大小为2740h，此处没有其他变量，即使是for循环写入最大值3737（E99h）也不会影响到其他变量，所以我们暂时不管他
+
+先将下面的字符串做异或，得出明文
+
+```c
+strcpy((char *)v3, "`lfgc-y`b}v!");
+```
+
+```python
+flag = "`lfgc-y`b}v!"
+flag_ = ""
+j = 8
+for i in range(len(flag)):
+    if len(flag) - 1 <= i:
+        flag_ += flag[i]
+        break
+    flag_ += chr(ord(flag[i]) ^ j)
+    j += 1
+print(flag_)
+```
+
+输出结果为`hello world!`
+
+![image-20240224235026590](/image-20240224235026590.png)
+
+flag为`flag{fc3ff98e8c6a0d3087d515c0473f8677}`
+
+### 小结
+
+程序首先判断输入字符串（后称input_flag）长度是否为37，如果是则最终不会执行input_flag的变换（X函数），但是如果这样，在最后的check函数中的对比必然不成功，因为对比密文是12个字节，而input_flag是37个字节，在密文的12个字节之后都是\x00，而input_flag的12个字节后不可能为\x00；如果input_flag长度不为37，则进行input_flag的变换，之后check函数中可以成功比较。main函数中间的for循环对flag变量的赋值可能是垃圾代码，大概照应了题目名字吧
+
+## Java_Tools
+
+查看MANIFEST.MF文件可知主类为main.java.Test
+
+![image-20240224235751420](/image-20240224235751420.png)
+
+反编译如下：
+
+```java
+package main.java;
+
+import java.util.Scanner;
+
+public class Test {
+   public static void main(String[] args) {
+      Scanner in = new Scanner(System.in);
+      System.out.println("Welcome to Polar_Ctf!,come to play!");
+      System.out.println("Please Input : ");
+      String name = in.next();
+      char[] Strings = name.toCharArray();
+      Tools.Add_1(Strings, 3);
+      Tools.Re(Strings);
+      Tools.Judge(Strings);
+   }
+}
+
+```
+
+接收了我们的输入，之后调用了Tools类中的多个方法
+
+将其逐个呈现：
+
+```java
+public static void Add_1(char[] str, int x) {
+  for(int i = 0; i < str.length; ++i) {
+     str[i] = (char)(str[i] + x);
+  }
+}
+```
+
+```java
+public static void Re(char[] str) {
+  for(int i = 0; i < str.length / 2 - 1; ++i) {
+     char temp = str[i];
+     str[i] = str[str.length - i - 1];
+     str[str.length - i - 1] = temp;
+  }
+}
+```
+
+可以看到，共有两个变换方法，先调用Add_1方法，将输入内容逐字符+3，然后调用Re方法将字符串翻转，最后是Judge方法：
+
+```java
+public static void Judge(char[] str) {
+  ArrayList Result = new ArrayList();
+  ArrayList Flag = new ArrayList();
+  char[] var3 = str;
+  int var4 = str.length;
+
+  for(int var5 = 0; var5 < var4; ++var5) {
+     Character i = var3[var5];
+     Result.add(i);
+  }
+
+  String name = "$gourZroohK";
+  String sttr = new String(str);
+  if (name.contains(sttr)) {
+     System.out.println("You Are Right!MD5!");
+  } else {
+     System.out.println("You Are Wrong! please try it again!");
+  }
+
+  char[] Strings = name.toCharArray();
+  char[] var13 = Strings;
+  int var7 = Strings.length;
+
+  for(int var8 = 0; var8 < var7; ++var8) {
+     char c = var13[var8];
+     Flag.add(c);
+  }
+
+  if (Result.equals(Flag)) {
+     System.out.println("You Are Right!MD5!");
+  } else {
+     System.out.println("You Are Wrong! please try it again!");
+  }
+
+}
+```
+
+可以看到用于比较的字符串`$gourZroohK`，这就是变换后的字符串
+
+我们先将其翻转，然后逐字节-3就可得到flag
+
+参考脚本：
+
+```python
+reverse = "".join(reversed("$gourZroohK"))
+flag = ""
+for i in range(len(reverse)):
+    flag += chr(ord(reverse[i]) - 3)
+print(flag)
+```
+
+输出结果为：HelloWorld!
+
+![image-20240225000444816](/image-20240225000444816.png)
+
+flag为`flag{06e0e6637d27b2622ab52022db713ce2}`
+
+## PY_RE
+
+![image-20240225000617533](/image-20240225000617533.png)
+
+```python
+import Test
+Dict = {}
+key = 'A'
+value = 26
+for i in range(1,27):				
+    Dict.setdefault(key, value)		#这里将A与26对应，B与25对应，以此类推
+    key = chr(ord(key) + 1)
+    value = value - 1
+print("===================Py_Reverse====================")
+
+def main():
+    Input_Str = input("Please Input Str:\n")
+    Input_Str = list(Input_Str)
+    Test.EnData1(Input_Str,Dict)
+    Test.Judge(Input_Str)
+main()
+```
+
+上面将我们的输入给到EnData1，然后判断
+
+```python
+def EnData1(Input_Str,Dict):
+    for i in range(int(len(Input_Str)/2),len(Input_Str)):
+        for dict in Dict:
+            if Input_Str[i] == str(dict):
+                Input_Str[i] = Dict[dict]
+                break
+```
+
+可以看到EnData1里从我们输入的一半处开始处理，将一半之后的内容替换为字典里的相应值，如果字典里没有就不做修改
+
+```python
+def Judge(Input_Str):
+    FLAG = ['H', 'E', 'L', 'L', 'O', '_', '_', 11, 2, 7, 19, 12, 13]
+    if str(Input_Str) == str(FLAG):
+        print("YES!")
+    else:
+        print("NO!")
+```
+
+可以看到flag的长度为13，这里应该从第二个下划线处开始修改，但是字典里没有下划线，所以下换线不,
+
+我们修改一下源码，使其输出一下字典的内容
+
+```python
+{'A': 26, 'B': 25, 'C': 24, 'D': 23, 'E': 22, 'F': 21, 'G': 20, 'H': 19, 'I': 18, 'J': 17, 'K': 16, 'L': 15, 'M': 14, 'N': 13, 'O': 12, 'P': 11, 'Q': 10, 'R': 9, 'S': 8, 'T': 7, 'U': 6, 'V': 5, 'W': 4, 'X': 3, 'Y': 2, 'Z': 1}
+```
+
+对照着字典找到相应的字符：PYTHON
+
+输入HELLO__PYTHON提示YES
+
+![image-20240225001434360](/image-20240225001434360.png)
+
+md5后提交提示正确
+
+flag为`flag{ceee59bbd765a9cb20daa0c1d2b3b9d0}`
+
+## 二层防御
+
+![image-20240225001616303](/image-20240225001616303.png)
+
+查壳发现UPX，upx -d 脱一下
+
+IDA载入脱壳后程序，反编译主函数：
+
+```c
+int __cdecl main(int argc, const char **argv, const char **envp)
+{
+  _main();
+  puts("Input :");
+  gets(input_flag);
+  Check_Length();
+  Strlen();
+  sub122(x);
+  check();
+  return 0;
+}
+```
+
+先查看check函数
+
+```c
+__int64 check(void)
+{
+  int i; // [rsp+2Ch] [rbp-4h]
+
+  for ( i = 0; i < x; ++i )
+  {
+    if ( flag1[i] != input_flag[i] )
+    {
+      printf("Error!");
+      return 0i64;
+    }
+  }
+  printf(aRight);
+  return 1i64;
+}
+```
+
+其中将flag1与输入字符串进行比较
+
+![image-20240225001954556](/image-20240225001954556.png)
+
+flag1是固定值`allo_PWN n`，于是我们怀疑对`input_flag`做了变换
+
+![image-20240225002103554](/image-20240225002103554.png)
+
+交叉引用确实存在很多处代码
+
+我们回到main函数从上向下看
+
+```c
+size_t Check_Length(void)
+{
+  size_t result; // rax
+
+  result = strlen(input_flag);
+  if ( result != 37 )
+    tick = 0;
+  return result;
+}
+```
+
+Check_Length函数判断了input_flag的长度，决定了tick的值
+
+![image-20240225002206478](/image-20240225002206478.png)
+
+但是tick的交叉引用没有别处代码引用了tick，暂时不能确定flag的长度
+
+```c
+__int64 Strlen(void)
+{
+  __int64 result; // rax
+  int i; // [rsp+Ch] [rbp-4h]
+
+  for ( i = 0; ; ++i )
+  {
+    result = (unsigned __int8)input_flag[i];
+    if ( !(_BYTE)result )
+      break;
+    ++x;
+  }
+  return result;
+}
+```
+
+Check_Length函数之后立即调用了Strlen函数，里面根据input_flag的长度设置了全局变量x，x的值是input_flag的长度
+
+```c
+__int64 __fastcall sub122(int a1)
+{
+  char v2; // [rsp+2Bh] [rbp-5h]
+  int i; // [rsp+2Ch] [rbp-4h]
+
+  for ( i = 1; a1 / 2 > i; ++i )
+  {
+    v2 = input_flag[i];
+    input_flag[i] = input_flag[a1 - i - 1];
+    input_flag[a1 - i - 1] = v2;
+  }
+  return sub133();
+}
+```
+
+sub122在Strlen函数之后被调用，传入的参数是全局变量x，代码中大概是将input_flag前后字符交换，该函数在返回前调用了sub133
+
+```c
+__int64 sub133(void)
+{
+  __int64 result; // rax
+  int v1; // [rsp+Ch] [rbp-4h]
+
+  v1 = 1;
+  x1 = j;
+  while ( 1 )
+  {
+    result = (unsigned int)(x - 1);
+    if ( (_DWORD)result == v1 )
+      break;
+    input_flag[v1] ^= x1;
+    --input_flag[v1++];
+  }
+  return result;
+}
+```
+
+该函数将input_flag逐字节先与x1异或，然后-1，x1的值来自全局变量j，根据交叉引用，没有别处调用了j，j的值始终为8
+
+![image-20240225002623612](/image-20240225002623612.png)
+
+sub122函数返回后，调用check函数
+
+了解了以上信息，我们可以写出逆过程：先将`allo_PWN n`逐字节+1后与8异或，再将处理后的字符串按照上面的算法交换就可以得出flag
+
+```python
+flag = list("allo_PWN n")
+for i in range(1, len(flag) - 1):
+    flag[i] = chr((ord(flag[i]) + 1) ^ 8)
+for i in range(1, int(len(flag) / 2)):
+    a = flag[i]
+    flag[i] = flag[len(flag) - i - 1]
+    flag[len(flag) - i - 1] = a
+    i += 1
+
+print("".join(flag))
+```
+
+![image-20240225004712777](/image-20240225004712777.png)
+
+flag为`flag{ab2c636ddee2f907f3b38c151cb9b274}`
