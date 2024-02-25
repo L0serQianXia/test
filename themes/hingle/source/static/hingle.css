@@ -751,7 +751,7 @@ article h1:before{ font-weight: bold }
 
 .article-list a{
     display: block;
-    margin-bottom: .5em;
+    margin-bottom: .1em;
 }
 
 .article-list .item-2:before,
@@ -759,14 +759,24 @@ article h1:before{ font-weight: bold }
 .article-list .item-4:before,
 .article-list .item-5:before,
 .article-list .item-6:before{
-    margin-right: .5em;
+	content: " ";
 }
 
-.article-list .item-2:before{ content: "-" }
-.article-list .item-3:before{ content: "--" }
-.article-list .item-4:before{ content: "---" }
-.article-list .item-5:before{ content: "----" }
-.article-list .item-6:before{ content: "-----" }
+.article-list .item-2:before{
+	margin-right: 1em;
+}
+.article-list .item-3:before{
+	margin-right: 2em;
+}
+.article-list .item-4:before{
+	margin-right: 3em;
+}
+.article-list .item-5:before{
+	margin-right: 4em;
+}
+.article-list .item-6:before{
+	margin-right: 5em;
+}	
 
 @media screen and (min-width: 800px){
     body.has-trees{ margin-right: 15em }
