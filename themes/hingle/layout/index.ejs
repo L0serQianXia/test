@@ -2,8 +2,7 @@
     <div class="wrap min">
         <section class="home-title">
             <h1><%= config.title %></h1>
-			<% a=["千夏正在开纪", "千夏可以被以下方式找到↓", "千夏正在摸鱼", "千夏正在睡觉", "做逆向死路一条", "现在是" + new Date(moment()).toLocaleString().replace(/:\d{1,2}$/,' ') + "！", "打CTF死路一条", "玩原神导致的↑", "千夏是个飞舞;w;", "Ciallo～(∠・ω< )⌒☆"]; %>
-            <span><%- a[5]; %></span>
+            <span></span>
             <%- partial("_partial/social") %>
         </section>
         <%- partial("_partial/archive-list") %>
@@ -14,4 +13,8 @@
             }) %>
         </section>
     </div>
+    <script>
+        a=["千夏正在开纪", "千夏可以被以下方式找到↓", "千夏正在摸鱼", "千夏正在睡觉", "做逆向死路一条", "现在是" + new Date(new Date().getTime()).toLocaleString().replace(/:\d{1,2}$/,' ') + "！", "打CTF死路一条", "玩原神导致的↑", "千夏是个飞舞;w;", "Ciallo～(∠・ω< )⌒☆"]; 
+        document.getElementsByClassName("home-title").item(0).firstElementChild.nextElementSibling.innerHTML = a[Math.floor(Math.random() * 10000 % 100 % 10)];
+    </script>
 </main>
