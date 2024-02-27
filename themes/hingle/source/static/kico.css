@@ -269,6 +269,7 @@ button{
 pre, code{
     word-break: normal;
     font-family: 'Consolas', 'Courier New', monospace;
+	overflow-y: scroll;
 }
 
 pre{

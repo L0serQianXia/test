@@ -93,6 +93,7 @@ pre{
     border-color: var(--border);
     background: rgba(0, 0, 0, .05);
     background-origin: content-box;
+	max-height: 500px;
 }
 
 blockquote{
