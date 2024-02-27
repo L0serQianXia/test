@@ -91,8 +91,7 @@ pre{
     color: inherit;
     border: 1px solid #ddd;
     border-color: var(--border);
-    background: linear-gradient(rgba(0, 0, 0, .05) 50%, transparent 0);
-    background-size: auto 3em;
+    background: rgba(0, 0, 0, .05);
     background-origin: content-box;
 }
 
@@ -140,7 +139,7 @@ input, textarea, pre, hr, blockquote{
 }
 
 .dark-theme pre{
-    background-image: linear-gradient(rgba(255, 255, 255, .05) 50%, transparent 0);
+    background-image: rgba(255, 255, 255, .05);
 }
 
 .dark-theme blockquote{
