@@ -1,6 +1,6 @@
 <header>
     <div class="head-title">
-        <h4><%= config.title %></h4>
+        <a href="https://L0serQianXia.github.io/blog" style="font-weight: normal;color: #555;"><%= config.title %></a>
     </div>
     <div class="head-action">
         <div class="toggle-btn"></div>
@@ -27,4 +27,20 @@
             <a href="<%- url_for(theme.menu[i]) %>"><%= i %></a>
         <% } %>
     </nav>
+	<script>
+	    var observer = new MutationObserver(callback)
+        observer.observe(document.body, {
+        	attributes: true
+        });
+		function callback(){
+			headTitle = document.body.getElementsByClassName("head-title")
+		    style = headTitle.item(0).childNodes.item(1).attributes.style.textContent
+		    if (document.body.classList.contains("dark-theme")){
+		    	headTitle.item(0).childNodes.item(1).attributes.style.textContent = style.replace("#555", "#bbb")
+		    } else {
+		    	headTitle.item(0).childNodes.item(1).attributes.style.textContent = style.replace("#bbb", "#555")
+		    }
+		}
+		callback()
+	</script>
 </header>
