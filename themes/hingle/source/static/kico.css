@@ -654,6 +654,10 @@ form .inline label, fieldset.inline label{
     border-radius: 5px;
 }
 
+div.table-content{
+	overflow: auto;
+}
+
 table{
     border: 0;
     width: 100%;
