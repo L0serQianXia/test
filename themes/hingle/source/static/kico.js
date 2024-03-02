@@ -220,6 +220,8 @@ Array.prototype.remove = function (value) {
 		  }
 		//}, 100)
 	  }
+	  // 修复缩放过的图片
+	  changeStyle(cloneEl, ["zoom:100%"])
 	  // 添加图片
 	  changeStyle(cloneEl, [`left: ${left}px`, `top: ${top}px`, 'cursor: pointer'])
 	  mask.appendChild(cloneEl)
