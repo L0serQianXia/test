@@ -14,6 +14,10 @@ categories: Writeup
 
 这里是个人Writeup，本次比赛Reverse方向共有6道题，解出5道，其中题目“易位”没能解出。
 
+其他方向的个人题解：[PolarCTF2024春季个人挑战赛个人Writeup](https://l0serqianxia.github.io/blog/2024/03/23/polarctf-2024-spring-personal-wp/)
+
+
+
 2024年3月24日00:15更新易位：
 
 看了官方的题解视频，易位这道题还是没想到，最终是把那两个没被调用的函数，对字符串的减去的值互换，之后便可得到明文。
@@ -335,3 +339,5 @@ flag为`flag{polar_dream_bigger}`
 将两个字符串按语言顺序排列，得到`在这个变迁的世界仍有长存之物`，将其做MD5加密得到flag
 
 flag为`flag{c2f447e3054e0610ca272f63f9aedc3f}`
+
+（完）
