@@ -6,6 +6,7 @@ tags:
 - CTF
 - wp
 - Writeup
+- 天山固网杯
 categories: Writeup
 ---
 

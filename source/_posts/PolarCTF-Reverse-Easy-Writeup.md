@@ -3,10 +3,14 @@ title: PolarCTF靶场Reverse方向简单难度Writeup
 typora-root-url: PolarCTF-Reverse-Easy-Writeup
 date: 2024-02-16 00:25:39
 tags: 
+- PolarCTF
 - CTF
 - wp
 - Writeup
-categories: Writeup
+- re
+categories: 
+- Writeup
+- PolarCTF
 ---
 
 ## shell

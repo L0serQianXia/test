@@ -3,13 +3,15 @@ title: PolarCTF2024春季个人挑战赛个人Writeup
 typora-root-url: polarctf-2024-spring-personal-wp
 date: 2024-03-24 01:02:06
 tags:
-- polarctf
+- PolarCTF
 - CTF
 - Writeup
 - wp
 - misc
 - web
-categories: Writeup
+categories: 
+- Writeup
+- PolarCTF
 ---
 
 # PolarCTF2024春季个人挑战赛个人Writeup

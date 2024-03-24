@@ -3,10 +3,14 @@ title: PolarCTF靶场Reverse方向中等难度Writeup
 typora-root-url: PolarCTF-Reverse-Medium-Writeup
 date: 2024-02-25 00:44:52
 tags:
+- PolarCTF
 - CTF
 - wp
 - Writeup
-categories: Writeup
+- re
+categories: 
+- Writeup
+- PolarCTF
 ---
 
 ## JunkCode

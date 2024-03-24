@@ -3,11 +3,13 @@ title: PolarCTF2024春季个人挑战赛Reverse方向个人Writeup
 typora-root-url: polarctf-2024-spring-reverse-wp
 date: 2024-03-24 00:00:00
 tags: 
-- polarctf
+- PolarCTF
 - CTF
 - Writeup
 - wp
-categories: Writeup
+categories: 
+- Writeup
+- PolarCTF
 ---
 
 # PolarCTF2024春季个人挑战赛Reverse方向个人Writeup

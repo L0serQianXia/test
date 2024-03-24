@@ -2,7 +2,10 @@
 title: movemenoreg 利用U盘传播的VBS病毒分析及免疫
 typora-root-url: movemenoreg-vbs-analysis
 date: 2024-02-25 12:58:04
-tags: re
+tags: 
+- re
+- malware
+- virus
 categories: Reverse
 ---
 
