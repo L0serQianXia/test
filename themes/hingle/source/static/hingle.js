@@ -253,7 +253,7 @@ if(window.console && window.console.log){
 
 		var f = 16, // 字体大小
 			x = event.clientX - f / 2, // 横坐标
-			y = event.clientY - f, // 纵坐标
+			y = event.clientY - f - 10, // 纵坐标
 			c = randomColor(), // 随机颜色
 			a = 1, // 透明度
 			s = 1.2; // 放大缩小
