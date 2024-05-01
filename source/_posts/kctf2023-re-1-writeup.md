@@ -5,10 +5,11 @@ date: 2024-05-01 13:04:26
 tags:
 - kctf2023
 - re
-- ctf
-- writeup
+- CTF
+- Writeup
 - wp
-categories: Reverse
+- kctf
+categories: Writeup
 ---
 
 # KCTF2023第一题
