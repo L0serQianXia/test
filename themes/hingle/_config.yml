@@ -15,7 +15,7 @@ background: '/blog/static/img/Background.jpg' # 主题背景
 menu: # 页眉菜单项目
   '关于我': /2024/02/15/about/
   '朋友们': /2024/02/15/friends/
-  '小游戏': /games/
+  '小游戏': /games
 config:
   copyright: true # 复制的时候弹出保留原站链接说明
   night: true # 自动切换夜间模式
