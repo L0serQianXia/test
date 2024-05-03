@@ -26,7 +26,7 @@ date: 2024-05-03 13:12:27
          transition-duration: 0.15s;
          margin-bottom: 1rem;
          display:flex;
-		 flex: 0 1 45%;
+		 flex: 1 1;
          }
          .card:nth-child(odd) {
          float: left;
@@ -84,6 +84,15 @@ date: 2024-05-03 13:12:27
                      <a href="https://skidder.top/">SuperSkidder’s blog</a>
                   </div>
                   <div class="info">Author of FPSMaster Client, Hanabi Client, etc..</div>
+               </div>
+            </div>
+            <div class="card">
+               <img class="ava" src="https://me.owo.today/wp-content/uploads/2023/09/photo.jpg" lazyload="true" />
+               <div class="card-header">
+                  <div>
+                     <a href="https://me.OwO.today">小夏鸢的波子汽水店</a>
+                  </div>
+                  <div class="info">鸢飞戾天者，望峰息心。</div>
                </div>
             </div>
          </div>
