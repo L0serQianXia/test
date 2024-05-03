@@ -9,19 +9,24 @@ date: 2024-05-03 13:12:27
          .links-content{
          margin-top:1rem;
          }
+		 .link-navigation {
+         display: flex;
+		 flex-wrap: wrap;
+         }
          .link-navigation::after {
          content: " ";
          display: block;
          clear: both;
          }
          .card {
-         width: 45%;
+		 width: 95%;
          font-size: 1rem;
          padding: 10px 20px;
          border-radius: 4px;
          transition-duration: 0.15s;
          margin-bottom: 1rem;
          display:flex;
+		 flex: 0 1 45%;
          }
          .card:nth-child(odd) {
          float: left;
@@ -56,6 +61,7 @@ date: 2024-05-03 13:12:27
          color: #2bbc8a;
          font-weight: bold;
          text-decoration: none;
+		 word-break: normal;
          }
          .card .card-header a:hover {
          color: #d480aa;
