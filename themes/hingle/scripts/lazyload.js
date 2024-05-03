@@ -8,7 +8,6 @@ function lazyloadImg(source) {
     //遍历所有 img 标签，添加data-original属性
     LZ('img').each(function(index, element) {
 		var lazyload = LZ(element).attr('lazyload');
-		console.log(lazyload)
 		if (lazyload === 'false') {
 			return;
 		}
