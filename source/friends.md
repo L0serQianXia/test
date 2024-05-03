@@ -58,13 +58,12 @@ date: 2024-05-03 13:12:27
 		 }
          .card .card-header a {
          font-style: normal;
-         color: #2bbc8a;
          font-weight: bold;
          text-decoration: none;
 		 word-break: normal;
          }
          .card .card-header a:hover {
-         color: #d480aa;
+         color: #ffc670;
          text-decoration: none;
          }
          .card .card-header .info {
