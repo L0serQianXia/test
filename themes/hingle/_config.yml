@@ -1,6 +1,6 @@
 author: '千夏' # 作者名称
-author_avatar: '/blog/static/img/icon.png' # 作者头像
-author_text: '是个飞舞，头像都是偷SuperSkidder的' # 作者信息
+author_avatar: 'https://cravatar.cn/avatar/686da6beaf2785ae1df2c8c9ddbd82eb' # 作者头像
+author_text: '一个努力不懈的飞舞re手，虽然是个飞舞，但始终坚信每一次尝试都是通往成长的阶梯' # 作者信息
 social: # 社交链接
   - title: '首页'
     icon: 'home'
