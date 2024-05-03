@@ -1,9 +1,7 @@
 ---
 title: 关于千夏
-date: 2024-02-15 16:24:28
-tags:
-categories: Home
-typora-root-url: ./about
+date: 2024-05-03 13:41:28
+lazyload: false
 ---
 
 - 👋 Hi, I’m [@L0serQianXia](https://github.com/L0serQianXia)

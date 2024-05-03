@@ -13,8 +13,8 @@ social: # 社交链接
     link: 'https://github.com/L0serQianXia'
 background: '/blog/static/img/Background.jpg' # 主题背景
 menu: # 页眉菜单项目
-  '关于我': /2024/02/15/about/
-  '朋友们': /2024/02/15/friends/
+  '关于我': /about
+  '朋友们': /friends
   '小游戏': /games
 config:
   copyright: true # 复制的时候弹出保留原站链接说明
