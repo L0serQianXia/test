@@ -11,4 +11,7 @@ title: 在线网页小游戏
 [访问](/blog/static/games/flybird/)
 
 ## 圈小猫
-[访问](/blog/static/games/catch-the-cat/)
+[访问](/blog/static/games/catchthecat/)
+
+## 魔塔
+[访问](/blog/static/games/magictower/)
