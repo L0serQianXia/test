@@ -15,11 +15,18 @@
 <div class="result" id="result">这里是结果显示</div>
 </body>
 <script>
-  var number = Math.floor( Math.random() * 1000)
-  
-  var btn = document.querySelector(".check");
-  	  btn.addEventListener("click", function () {
-		var userNumber = document.querySelector(".number").value
+	var number = Math.floor( Math.random() * 1000)
+	var input = document.querySelector(".number");
+	var btn = document.querySelector(".check");
+	btn.addEventListener("click", checkNumber);
+	input.addEventListener("keyup", function(e){
+		if(e.keyCode == '13'){
+			checkNumber();
+		}
+	})
+	
+	function checkNumber() {
+		var userNumber = input.value
 		var result = document.querySelector(".result")
 		if(userNumber > number) {
 			result.innerHTML = "数字大了"
@@ -28,7 +35,9 @@
 		} else {
 			result.innerHTML = "你正确了"
 		}
-	  });
+	}
   </script>
+  
+  
 </html>
 
