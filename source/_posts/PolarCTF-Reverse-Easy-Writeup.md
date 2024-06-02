@@ -17,11 +17,10 @@ categories:
 
 这里是简单难度题目的个人解析，分析题目代码大多采用反汇编代码，部分题目使用IDA的F5伪代码呈现
 
-## 更新记录
-
-### 2024年4月13日23:30
-
-添加解析：C^、一个flag劈三瓣儿（2024春季个人挑战赛）
+| 更新日期           | 更新内容                                             |
+| ------------------ | ---------------------------------------------------- |
+| 2024年4月13日23:30 | 添加解析：C^、一个flag劈三瓣儿（2024春季个人挑战赛） |
+| 2024年6月2日14:52  | 添加解析：EasyCPP2、crc（2024夏季个人挑战赛）        |
 
 ## shell
 
@@ -1097,6 +1096,97 @@ flag为`flag{f9239748ca798af5d838ac8699bb5d3d}`
 拼接即得flag
 
 flag为`flag{HaiZI233N145wuD!le112@666}`
+
+## crc
+
+IDE检查发现ELF64文件，使用IDA64加载，main函数主要代码如下图：
+
+![image-20240602133323745](image-20240602133323745.png)
+
+不难发现，其中将用户输入内容分别切为4字节、1字节、4字节、2字节、4字节和1字节，并分别送入magic函数中，检查返回值是否与预期值相等。
+
+magic函数代码如下图：
+
+![image-20240602133319801](image-20240602133319801.png)
+
+可以看出，计算了输入内容的crc32值，并将其返回。因此得知，main函数中预期比较的值为crc32。可以编写脚本进行暴力破解，脚本代码如下：
+
+```python
+import binascii
+import string
+
+chars = string.printable
+def crc4(target):
+    for a in chars:
+        for b in chars:
+            for c in chars:
+                for d in chars:
+                    str1 = a + b + c + d 
+                    if(target == "{:0>8s}".format("%x"%(binascii.crc32(str1.encode("utf-8")) & 0xffffffff))):
+                        print(str1)
+                        return
+
+def crc1(target):
+    for a in chars:
+        str1 = a
+        if(target == "{:0>8s}".format("%x"%(binascii.crc32(str1.encode("utf-8")) & 0xffffffff))):
+            print(str1)
+            return
+
+def crc2(target):
+    for a in chars:
+        for b in chars:
+            str1 = a + b
+            if(target == "{:0>8s}".format("%x"%(binascii.crc32(str1.encode("utf-8")) & 0xffffffff))):
+                print(str1)
+                return
+
+crc4("d1f4eb9a")
+crc1("15d54739")
+crc4("540bbb08")
+crc2("3fcbd242")
+crc4("2479c623")
+crc1("fcb6e20c")
+```
+
+脚本执行结果如下图：
+
+![image-20240602133307158](image-20240602133307158.png)
+
+拼接起来即为flag。
+
+## EasyCPP2
+
+IDE检查得知ELF64，使用IDA64加载。main函数主要代码如下图：
+
+![image-20240602133404353](image-20240602133404353.png)
+
+其中调用了encode函数，并接收了用户的输入，将用户输入与变量flag进行比较，如果相同则正确。
+
+encode函数代码如下图：
+
+![image-20240602133400173](image-20240602133400173.png)
+
+flag变量值如图：
+
+![image-20240602133355053](image-20240602133355053.png)
+
+据encode函数代码写出对flag内容的变换脚本，脚本代码如下：
+
+```python
+flag = list("qisngksofhuivvmg")
+for i in range(len(flag)):
+    flag[i] = chr(ord(flag[i]) + 3)
+    flag[i] = chr(ord(flag[i]) ^ 1)
+    
+print("".join(flag))
+```
+
+运行结果如下图：
+
+![image-20240602133346047](image-20240602133346047.png)
+
+此为flag。
 
 （完）
 
