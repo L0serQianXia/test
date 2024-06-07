@@ -7,6 +7,9 @@ tags:
 - Reverse
 - E Language
 - MBRLocker
+- malware
+- malicious
+- KillMBR
 categories: Reverse
 ---
 
@@ -533,4 +536,12 @@ IDA反编译，观察算法：
 
 [绕过SE的虚拟机检测 - 『脱壳破解区』 - 吾爱破解 - LCG - LSG |安卓破解|病毒分析|www.52pojie.cn](https://www.52pojie.cn/thread-598022-1-1.html)
 
-（完）
+## 恶意文件哈希
+
+| 文件名                   | SHA256                                                       |
+| ------------------------ | ------------------------------------------------------------ |
+| YEMiNi辅助1.8.6.exe      | 56806A9EC79086CF15BE7CF5DB747D0257E056CB10BE9FA38AF9A8D3EFD730B4 |
+| 生死内部免费版.exe       | 31033784D589590860C4033DAC82B978FCEF4C95928AA5E83D81A419C330A2F7 |
+| 诗云Mini辅助1.1.0(1).exe | 309D691A9EC940229DF2306EE542D5856A9AA4D7F4D756BFE1FBB89F15D9A3B5 |
+| 北巷栀酒丨驱动DLL2.5.exe | 87E5F6215E6E6D73FC8FFBB9FDD37E96963579DDD2C4B2A23AD29CEEC7EE91E0 |
+| hh (1).exe               | 67A47E1BD2BCE040123D3ABAFC5C229A65AC5C9964079C8B971EC1B2EE555A36 |
