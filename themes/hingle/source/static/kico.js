@@ -223,7 +223,7 @@ Array.prototype.remove = function (value) {
 	  // 修复缩放过的图片
 	  changeStyle(cloneEl, ["zoom:100%"])
 	  // 添加图片
-	  changeStyle(cloneEl, [`left: ${left}px`, `top: ${top}px`, 'cursor: pointer'])
+	  changeStyle(cloneEl, [`left: ${left}px`, `top: ${top}px`, 'cursor: grab'])
 	  mask.appendChild(cloneEl)
 	  // 移动图片到屏幕中心位置
 	  const originalCenterPoint = { x: offsetWidth / 2 + left, y: offsetHeight / 2 + top }
