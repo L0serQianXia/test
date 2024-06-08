@@ -2,15 +2,6 @@
 <html>
   <%- partial("_partial/head") %>
   <body>
-    <script>
-        var sessiondarklight = sessionStorage.getItem('dark or light');
-        if (sessiondarklight == 'dark'){
-            document.body.classList.add("dark-theme");
-        }
-        else if (!sessiondarklight) {
-            sessionStorage.setItem('dark or light','pre');
-        }
-    </script>
     <%- partial("_partial/header") %>
     <%- body %>
     <%- partial("_partial/footer") %>

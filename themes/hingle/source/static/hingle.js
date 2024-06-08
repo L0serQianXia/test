@@ -34,17 +34,15 @@ var Paul_Hingle = function (config) {
 
     // 关灯切换
     this.night = function () {
-    if(body.classList.contains("dark-theme")){
-        body.classList.remove("dark-theme");
-        document.cookie = "night=false;" + "path=/;" + "max-age=21600";
-        sessionStorage.setItem('dark or light', 'light');
-    }
-    else{
-        body.classList.add("dark-theme");
-        document.cookie = "night=true;" + "path=/;" + "max-age=21600";
-        sessionStorage.setItem('dark or light', 'dark');
-    }
-};
+        if(body.classList.contains("dark-theme")){
+            body.classList.remove("dark-theme");
+            document.cookie = "night=false;" + "path=/;" + "max-age=21600";
+        }
+        else{
+            body.classList.add("dark-theme");
+            document.cookie = "night=true;" + "path=/;" + "max-age=21600";
+        }
+    };
 
     // 目录树
     this.tree = function () {
@@ -139,27 +137,19 @@ var Paul_Hingle = function (config) {
 
     // 如果开启自动夜间模式
     if(config.night){
-        var sessiondarklight = sessionStorage.getItem('dark or light');
         var hour = new Date().getHours();
-        if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches){
-            if(sessiondarklight == 'dark'){
-                document.body.classList.add("dark-theme");
-            }
-            else if(sessiondarklight == 'pre') {
-                document.body.classList.add("dark-theme");
-                sessionStorage.setItem('dark or light','dark');
-            };
+
+        if(document.cookie.indexOf("night") === -1 && (hour <= 5 || hour >= 22)){
+            document.body.classList.add("dark-theme");
+            document.cookie = "night=true;" + "path=/;" + "max-age=21600";
         }
-        else {
-            if(hour <= 6 || hour >= 21) {
-                if(sessiondarklight == 'dark') {
-                    document.body.classList.add("dark-theme");
-                }
-                else if(sessiondarklight == 'pre') {
-                   document.body.classList.add("dark-theme");
-                   sessionStorage.setItem('dark or light','dark');
-                };
-            }
+    }
+    else if(document.cookie.indexOf("night") !== -1){
+        if(document.cookie.indexOf("night=true") !== -1){
+            document.body.classList.add("dark-theme");
+        }
+        else{
+            document.body.classList.remove("dark-theme");
         }
     }
 
