@@ -276,7 +276,7 @@ Array.prototype.remove = function (value) {
 	}
 	
 	function func_pointerdown(e) {
-		  //e.preventDefault()
+		  e.preventDefault()
 		  touches.set(e.pointerId, e) // TODO: 点击存入触摸点
 		  isTouching = true
 		  startPoint = { x: e.clientX, y: e.clientY }
