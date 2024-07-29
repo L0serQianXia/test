@@ -1,5 +1,5 @@
 ---
-title: U盘蠕虫病毒DeviceConfigManager.exe的分析
+title: Phorpiex家族蠕虫病毒DeviceConfigManager.exe分析
 typora-root-url: DeviceConfigManager-analysis
 date: 2024-07-24 17:38:04
 tags:
@@ -9,16 +9,17 @@ tags:
 - DeviceConfigManager.exe
 - re
 - windrv.exe
+- Phorpiex家族
 categories: Reverse
 ---
 
-# U盘蠕虫病毒DeviceConfigManager.exe分析
+# Phorpiex家族蠕虫病毒DeviceConfigManager.exe分析
 
 ## 前言
 
-这个病毒采用了ShellCode、进程替换、虚拟机检测等手段对抗分析，主要行为有感染可移动磁盘和网络驱动器、替换剪切板中的加密货币地址和远程投放可执行文件等，尝试连接的远程主机有约271个。
+这个病毒采用了ShellCode、进程替换、虚拟机检测等手段对抗分析，主要行为有感染可移动磁盘和网络驱动器、替换剪切板中的加密货币地址和远程投放可执行文件等，尝试连接的远程主机有约271个，属于Phorpiex家族。
 
-搜索相关线索，该样本经常更新，最早可追溯到2014年（根据火绒情报），而本次获得的样本约为2020年编译。
+搜索相关线索，该样本经常更新，最早可追溯到2014年（火绒情报），而本次获得的样本约在2020年以后传播。
 
 样本来源：[求助，U盘病毒杀不掉](https://www.52pojie.cn/thread-1944587-1-1.html)
 
@@ -98,7 +99,7 @@ U盘感染后目录（未显示隐藏文件）：
 
 ![image-20240729150514363](image-20240729150514363.png)
 
-完成以上步骤后，跳回到主模块中的一个函数，而此时的主模块已经是被替换的了。
+完成以上步骤后，跳到主模块中的一个函数，而此时的主模块已经是被替换的了。
 
 ![image-20240729151014355](image-20240729151014355.png)
 
@@ -128,7 +129,7 @@ is_vm函数通过查询驱动器名称检测虚拟机：
 
 ![image-20240729160740190](image-20240729160740190.png)
 
-防火墙策略：
+修改防火墙策略：
 
 ![image-20240729160925336](image-20240729160925336.png)
 
@@ -156,11 +157,9 @@ DeviceConfigManager.vbs的写入，并设置只读、系统、隐藏的属性：
 
 ![image-20240729161934034](image-20240729161934034.png)
 
-autorun.inf文件，试图自动运行DeviceConfigManager.exe：
+autorun.inf文件，试图利用Windows的自动播放来自动运行DeviceConfigManager.exe：
 
 ![image-20240729162137178](image-20240729162137178.png)
-
-虽然这通常不会起作用。
 
 根目录下创建快捷方式：
 
@@ -254,7 +253,7 @@ HijackClipboard函数实现了剪切板的检测，包括检测到特定特征�
 
 ![image-20240729173338963](image-20240729173338963.png)
 
-该样本的编译时间戳显然是不可信的，但根据其中存在的域名可大致推断，该样本于2020年出现。
+该样本的编译时间戳显然是不可信的，但根据其中存在的域名可大致推断，该样本于2020年以后传播。
 
 ![image-20240729173253187](image-20240729173253187.png)
 
@@ -284,3 +283,4 @@ OEP填写第二步中最后即将跳转到的地址，随后正常dump及修复I
 
 [PEB结构：获取模块kernel32基址技术及原理分析-软件逆向-看雪-安全社区|安全招聘|kanxue.com](https://bbs.kanxue.com/thread-266678.htm)
 
+[黑客利用病毒挖门罗币 已获利60余万-技术文章-火绒安全 (huorong.cn)](https://www.huorong.cn/document/tech/vir_report/737.html)
