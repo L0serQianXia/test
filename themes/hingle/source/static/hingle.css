@@ -985,3 +985,20 @@ pre[class*="language-"].line-numbers {
     padding-right: 0.8em;
     text-align: right;
 }
+
+.very-rustic-rainbow{
+	background-image: -webkit-linear-gradient(left, #147B96, #E6D205 25%, #147B96 50%, #E6D205 75%, #147B96);
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+    -webkit-background-size: 200% 100%;
+    -webkit-animation:  maskedAnimation 4s infinite linear;
+}
+ 
+@keyframes maskedAnimation {
+	0% {
+    background-position: 0 0;
+	}
+	100% {
+	    background-position: -100% 0;
+	}
+}
