@@ -484,6 +484,7 @@ main img {
 }
 
 .post-meta .date:before{ content: "\f017" }
+.post-meta .updated:before{ content: "\f1da" }
 .post-meta .category:before{ content: "\f07b" }
 .post-meta .tags:before{ content: "\f02c" }
 .post-meta .user:before{ content: "\f007" }

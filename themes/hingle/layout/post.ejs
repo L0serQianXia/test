@@ -1,9 +1,12 @@
+<% if (page.updateTime == null) { %>
+<%    page.updateTime = page.date %>
+<% } %>
 <main>
     <div class="wrap min">
         <section class="post-title">
             <h2><%= page.title ? page.title : "没有标题的文章" %></h2>
             <div class="post-meta">
-                <time class="date"><%= date(page.date, "YYYY.MM.DD HH:mm:ss") %></time>
+                <time class="date">发布于 <%= date(page.date, "YYYY-MM-DD HH:mm:ss") %></time>
             <% if (page.categories && page.categories.length){ %>
                 <span class="category"><%- list_categories(page.categories, {
                     show_count: false,
@@ -12,12 +15,15 @@
                     separator: "，"
                     }) %></span>
             <% } %>
+			<%    if(page.updateTime != page.date){ %>
+			<br><time class="updated">更新于 <%= date(page.updateTime, "YYYY-MM-DD HH:mm:ss") %></time>
+			<% } %>
 				<span class="view" id="busuanzi_container_page_pv">阅读<span id="busuanzi_value_page_pv"><i class="fa fa-spinner"></i></span>次</span>
             </div>
         </section>
         <article class="post-content" id="post-context">
-        <% if (moment().unix() - page.date.unix() >= 15552000) { %>
-            <blockquote>这篇文章上次修改于 <%= Math.ceil((moment().unix() - page.date.unix()) / 86400) %> 天前，可能其部分内容已经发生变化，如有疑问可询问作者。</blockquote>
+        <% if (moment().unix() - new Date(page.updateTime).getTime() / 1000 >= 15552000) { %>
+            <blockquote>这篇文章上次修改于 <%= Math.ceil((moment().unix() - new Date(page.updateTime).getTime() / 1000) / 86400) %> 天前，可能其部分内容已经发生变化，如有疑问可询问作者。</blockquote>
         <% } %>
             <%- page.content %>
         </article>
