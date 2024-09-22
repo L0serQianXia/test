@@ -2,7 +2,7 @@
 title: PolarCTF靶场Reverse方向简单难度Writeup
 typora-root-url: PolarCTF-Reverse-Easy-Writeup
 date: 2024-02-16 00:25:39
-updateTime: 2024-06-02 14:52:00
+updateTime: 2024-09-22 15:20:00
 tags: 
 - PolarCTF
 - CTF
@@ -22,6 +22,7 @@ categories:
 | ------------------ | ---------------------------------------------------- |
 | 2024年4月13日23:30 | 添加解析：C^、一个flag劈三瓣儿（2024春季个人挑战赛） |
 | 2024年6月2日14:52  | 添加解析：EasyCPP2、crc（2024夏季个人挑战赛）        |
+| 2024年9月22日15:20 | 添加解析：box、HowTo_Login（2024秋季个人挑战赛）     |
 
 ## shell
 
@@ -1188,6 +1189,87 @@ print("".join(flag))
 ![image-20240602133346047](image-20240602133346047.png)
 
 此为flag。
+
+## box
+
+附件存在一个提示文本和一个ELF文件。根据提示文本，flag为ELF中获取的3个key拼接结果。
+
+![image-20240922102847239](image-20240922102847239.png)
+
+### key1
+
+key1反编译结果如下：
+
+![image-20240922102902833](image-20240922102902833.png)
+
+可以看到最后的全局变量key的结果应该是key1
+
+这里需要注意的是IDA反编译存在问题：
+
+![image-20240922103047471](image-20240922103047471.png)
+
+汇编中可以清晰的看到，循环体中`key`加的值是`key + c`，而反编译中直接将f * d / 10的结果加给了`key`
+
+在上一个for循环中可以看到`c`的值是改变了的，如果直接按照IDA的反编译结果来编写代码，会导致最终算出的`key`是错误的。
+
+这里提供Python的一种实现：
+
+```python
+c=0
+d=0
+f=0
+key=0
+for i in range(1,22):
+    c += i
+    d += c
+    f = d + c - 1
+for k in range(33, 0, -1):
+    c = int(f * d) / 10
+    key += int(c)
+print(key)
+```
+
+![image-20240922103420695](image-20240922103420695.png)
+
+key1=11694441
+
+### key2
+
+![image-20240922103512103](image-20240922103512103.png)
+
+这里将输入字符串与程序内一个全局变量比较
+
+![image-20240922103601641](image-20240922103601641.png)
+
+变量值为that_ok
+
+key2=that_ok
+
+### key3
+
+![image-20240922103634658](image-20240922103634658.png)
+
+强烈的base特征
+
+Base32解码得：
+
+![image-20240922103659329](image-20240922103659329.png)
+
+key3=key
+
+### flag
+
+`flag=flag{md5(key1+key2+key3)}=flag{md5(11694441that_okkey)}=flag{0c680749b893e20d491a8752f1d49acd}`
+
+## HowTo_Login
+
+查壳发现有一层UPX，使用UPX -d 脱掉
+
+发现WinMain调用了`DialogBoxParamW`，进入过程函数，发现如下校验逻辑：
+
+![image-20240922103932206](image-20240922103932206.png)
+
+程序校验的序列号为CZ9dmq4c8g9G7bAX，同时也是本题目的flag。
 
 （完）
 
