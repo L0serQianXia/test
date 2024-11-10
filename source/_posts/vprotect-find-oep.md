@@ -7,11 +7,10 @@ tags:
 - VProtect
 - oep
 - unpack
-- unpacking
 - reverse
 categories:
 - Reverse
-- Unpacking
+- Unpack
 ---
 
 # 一种手动到达VProtect 2.1.0.0 OEP的方法
