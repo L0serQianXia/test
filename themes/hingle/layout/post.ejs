@@ -22,9 +22,7 @@
             </div>
         </section>
         <article class="post-content" id="post-context">
-        <% if (moment().unix() - new Date(page.updateTime).getTime() / 1000 >= 15552000) { %>
-            <blockquote>这篇文章上次修改于 <%= Math.ceil((moment().unix() - new Date(page.updateTime).getTime() / 1000) / 86400) %> 天前，可能其部分内容已经发生变化，如有疑问可询问作者。</blockquote>
-        <% } %>
+			<span id="is_outdated"></span>
             <%- page.content %>
         </article>
         <section class="post-near">
@@ -64,6 +62,18 @@
             </div>
         </section>
     <% } %>
+	<script>
+		var a = document.getElementById("is_outdated")
+		var last_update = document.getElementsByClassName("updated")[0]
+		if(last_update == undefined){
+			last_update = document.getElementsByClassName("date")[0]
+		}
+		last_update = last_update.innerHTML.replace("更新于 ", "").replace("发布于 ", "")
+		var days = Math.ceil((new Date().getTime() / 1000 - new Date(last_update).getTime() / 1000) / 86400)
+		if (new Date().getTime() / 1000 - new Date(last_update).getTime() / 1000 >= 15552000) {
+			a.innerHTML = "<blockquote>这篇文章上次修改于 " + days + " 天前，可能其部分内容已经发生变化，如有疑问可询问作者。</blockquote>"
+		}
+	</script>
 	<script src="https://giscus.app/client.js"
         data-repo="L0serQianXia/blog"
         data-repo-id="R_kgDOLSv9Jg"
